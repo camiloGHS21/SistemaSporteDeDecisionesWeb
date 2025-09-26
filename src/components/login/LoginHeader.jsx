@@ -1,6 +1,6 @@
 import React from 'react';
 
-const RegisterHeader = () => {
+const LoginHeader = () => {
   return (
     <div className="flex-grow-0 flex-shrink-0 w-[448px] h-[136px] relative">
       <div className="flex justify-center items-start w-[448px] absolute left-0 top-0">
@@ -26,11 +26,11 @@ const RegisterHeader = () => {
       </div>
       <div className="flex flex-col justify-start items-center w-[448px] absolute left-0 top-[116px]">
         <p className="flex-grow-0 flex-shrink-0 text-sm text-center text-gray-600">
-          Crea una cuenta
+          Inicia sesión en tu cuenta
         </p>
       </div>
     </div>
   );
 };
 
-export default RegisterHeader;
+export default LoginHeader;
