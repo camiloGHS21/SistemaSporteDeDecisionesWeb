@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 const LoginFooter = () => {
   return (
-    <div className="flex flex-col justify-start items-start flex-grow-0 flex-shrink-0 w-[448px] gap-2">
+    <div className="flex flex-col justify-start items-start flex-grow-0 flex-shrink-0 w-full gap-2">
       <div className="flex justify-center items-start self-stretch flex-grow-0 flex-shrink-0 relative space-x-[-8.526512829121202e-14px]">
         <p className="flex-grow-0 flex-shrink-0 text-sm text-center text-gray-600">
           ¿No tienes una cuenta?&nbsp;
