@@ -44,7 +44,7 @@ const RegisterForm = () => {
       {passwordError && <p className="text-red-500 text-xs">{passwordError}</p>}
      
       <div className="flex justify-center items-center self-stretch flex-grow-0 flex-shrink-0 relative px-4 py-2 rounded-md bg-[#4263eb]">
-        <button type="submit" className="flex-grow w-[328px] text-base font-semibold text-center text-white">
+        <button type="submit" className="flex-grow w-full text-base font-semibold text-center text-white">
           Regístrate
         </button>
       </div>
