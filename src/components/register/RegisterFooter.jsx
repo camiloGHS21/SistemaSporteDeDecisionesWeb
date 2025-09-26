@@ -8,9 +8,9 @@ const RegisterFooter = () => {
           ¿Ya tienes una cuenta?&nbsp;
         </p>
         <div className="flex justify-center items-start flex-grow-0 flex-shrink-0 relative">
-          <button className="flex-grow-0 flex-shrink-0 text-sm font-medium text-center text-[#4263eb]">
+          <a href="/" className="flex-grow-0 flex-shrink-0 text-sm font-medium text-center text-[#4263eb]">
             Inicia Sesión
-          </button>
+          </a>
         </div>
       </div>
       <div className="flex justify-center items-start flex-grow-0 flex-shrink-0 relative">
