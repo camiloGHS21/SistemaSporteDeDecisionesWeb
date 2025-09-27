@@ -26,7 +26,7 @@ const CompararChart = ({ data }) => {
             const countryApiData = data.apiData[country.value];
             if (countryApiData && countryApiData.length > 0) {
                 // We calculate the average of all values returned by the API for this country
-                const apiTotal = countryApiData.reduce((apiAcc, apiItem) => apiAcc + (apiItem.value || 0), 0);
+                const apiTotal = countryApiData.reduce((apiAcc, apiItem) => apiAcc + (parseFloat(apiItem.dataValue) || 0), 0);
                 value = apiTotal / countryApiData.length;
             }
         }

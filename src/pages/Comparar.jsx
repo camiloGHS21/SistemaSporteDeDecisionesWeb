@@ -60,6 +60,9 @@ const Comparar = () => {
         }, {})
       };
 
+      console.log('Fetched Data from API:', fetchedData);
+      console.log('Transformed Data for Chart:', transformedData);
+
       setComparisonData(transformedData);
 
     } catch (error) {
