@@ -5,6 +5,8 @@ import './index.css'
 import Login from '@pages/Login'
 import Register from '@pages/Register'
 import Comparar from '@pages/Comparar'
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import { AuthProvider } from './context/AuthContext';
 
 const router = createBrowserRouter([
   {
@@ -16,13 +18,20 @@ const router = createBrowserRouter([
     element: <Register />,
   },
   {
-    path:'/comparar',
-    element: <Comparar/>
+    element: <ProtectedRoute />,
+    children: [
+      {
+        path:'/comparar',
+        element: <Comparar/>
+      }
+    ]
   }
 ])
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   </StrictMode>,
 )

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import CompararHeader from '../components/comparar/CompararHeader';
 import CompararForm from '../components/comparar/CompararForm';
 import CompararChart from '../components/comparar/CompararChart';
@@ -13,9 +14,58 @@ const Comparar = () => {
       text: '¡Hola! Soy tu asistente de IA. Pregúntame\nsobre los datos en el gráfico.',
     },
   ]);
+  const navigate = useNavigate();
 
-  const handleCompare = (data) => {
-    setComparisonData(data);
+  const handleCompare = async (data) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/');
+      return;
+    }
+
+    const countriesToFetch = [data.country, ...data.references];
+    const year = 2024; // Assuming a fixed year for now
+
+    try {
+      const fetchedData = await Promise.all(
+        countriesToFetch.map(country =>
+          fetch(`http://localhost:8080/api/oecd-data/${country.value}/${year}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          }).then(res => {
+            if (res.status === 401 || res.status === 403) {
+              localStorage.removeItem('token');
+              navigate('/');
+              throw new Error('Authentication failed');
+            }
+            if (!res.ok) {
+              throw new Error(`Failed to fetch data for ${country.label}`);
+            }
+            return res.json();
+          })
+        )
+      );
+
+      // The API returns an array of data for each country.
+      // We need to transform this into a structure the chart can use.
+      // This is a placeholder transformation. You will need to adjust it
+      // based on the actual structure of your API response and chart requirements.
+      const transformedData = {
+        ...data, // This contains selected indicators, etc.
+        // We are creating a mock structure here for the chart from the fetched data.
+        apiData: countriesToFetch.reduce((acc, country, index) => {
+          acc[country.value] = fetchedData[index];
+          return acc;
+        }, {})
+      };
+
+      setComparisonData(transformedData);
+
+    } catch (error) {
+      console.error('Error fetching comparison data:', error);
+      // Optionally, show an error message to the user
+    }
   };
 
   const isChartDataAvailable = comparisonData && comparisonData.country && comparisonData.references.length > 0 && comparisonData.indicators.length > 0;
