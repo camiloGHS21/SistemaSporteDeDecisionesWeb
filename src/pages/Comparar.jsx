@@ -1,14 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import CompararHeader from '../components/comparar/CompararHeader';
 import CompararForm from '../components/comparar/CompararForm';
 import CompararChart from '../components/comparar/CompararChart';
+import AsistenteAnalisis from '../components/asistente/AsistenteAnalisis';
 
 const Comparar = () => {
   const [comparisonData, setComparisonData] = useState(null);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [messages, setMessages] = useState([
+    {
+      sender: 'bot',
+      text: '¡Hola! Soy tu asistente de IA. Pregúntame\nsobre los datos en el gráfico.',
+    },
+  ]);
 
   const handleCompare = (data) => {
     setComparisonData(data);
   };
+
+  const isChartDataAvailable = comparisonData && comparisonData.country && comparisonData.references.length > 0 && comparisonData.indicators.length > 0;
+
+  useEffect(() => {
+    if (!isChartDataAvailable && isChatOpen) {
+      setIsChatOpen(false);
+    }
+  }, [isChartDataAvailable, isChatOpen]);
 
   return (
     <div className="flex flex-col justify-start items-center w-full min-h-screen bg-[#f8f9fa]">
@@ -41,6 +57,14 @@ const Comparar = () => {
           </div>
         </div>
       </div>
+      <button
+        onClick={() => isChartDataAvailable && setIsChatOpen(!isChatOpen)}
+        className={`fixed bottom-8 right-8 bg-[#007bff] text-white w-16 h-16 rounded-full flex items-center justify-center shadow-lg z-10 ${!isChartDataAvailable ? 'opacity-50 cursor-not-allowed' : ''}`}
+        disabled={!isChartDataAvailable}
+      >
+        <span className="material-icons text-3xl">chat</span>
+      </button>
+      {isChatOpen && isChartDataAvailable && <AsistenteAnalisis data={comparisonData} messages={messages} setMessages={setMessages} />} 
     </div>
   );
 };
