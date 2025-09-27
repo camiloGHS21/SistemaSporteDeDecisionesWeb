@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import './index.css'
 import Login from '@pages/Login'
 import Register from '@pages/Register'
+import Comparar from '@pages/Comparar'
 
 const router = createBrowserRouter([
   {
@@ -14,6 +15,10 @@ const router = createBrowserRouter([
     path: '/register',
     element: <Register />,
   },
+  {
+    path:'/comparar',
+    element: <Comparar/>
+  }
 ])
 
 createRoot(document.getElementById('root')).render(

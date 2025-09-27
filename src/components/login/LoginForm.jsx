@@ -19,7 +19,7 @@ const LoginForm = () => {
         <p className="text-sm font-medium text-left text-blue-600">¿Olvidaste tu contraseña?</p>
       </div>
       <button className="flex justify-center items-center self-stretch px-4 py-3 rounded-md bg-blue-600">
-        <p className="text-sm font-semibold text-center text-white">iniciar sesión</p>
+        <a href='/comparar' className="text-sm font-semibold text-center text-white">iniciar sesión</a>
       </button>
     </div>
   );
