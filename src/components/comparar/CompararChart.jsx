@@ -15,45 +15,55 @@ const CompararChart = ({ data }) => {
   }
 
   const allCountries = [data.country, ...data.references];
+  const colors = ['#1173d4', '#ff8042', '#ffbb28', '#00C49F', '#FF8042', '#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
   const barChartData = allCountries.map(country => {
-    const total = data.indicators.reduce((acc, selectedIndicator) => {
-      let value = 0;
-      // If it's our special API indicator, use the apiData
+    const chartItem = { name: country.label };
+
+    data.indicators.forEach(selectedIndicator => {
+      let value;
       if (selectedIndicator.value === 'api_indicator') {
-        // This block will only run if data was successfully fetched from the API
         if (data.apiData) {
-            const countryApiData = data.apiData[country.value];
-            if (countryApiData && countryApiData.length > 0) {
-                // We calculate the average of all values returned by the API for this country
-                const apiTotal = countryApiData.reduce((apiAcc, apiItem) => apiAcc + (parseFloat(apiItem.dataValue) || 0), 0);
-                value = apiTotal / countryApiData.length;
+          const countryApiData = data.apiData[country.value];
+          if (countryApiData && countryApiData.length > 0) {
+            const validData = countryApiData.filter(item => item && item.dataValue != null);
+            if (validData.length > 0) {
+              const apiTotal = validData.reduce((apiAcc, apiItem) => apiAcc + (parseFloat(apiItem.dataValue) || 0), 0);
+              value = apiTotal / validData.length;
+            } else {
+              value = null; // No valid data
             }
+          } else {
+            value = null; // No data array
+          }
+        } else {
+          value = null; // No apiData object
         }
       } else {
-        // Otherwise, fall back to the original mockData
         const countryMockData = mockData[country.value];
         if (countryMockData) {
           value = countryMockData[selectedIndicator.value] || 0;
         }
       }
-      return acc + value;
-    }, 0);
+      chartItem[selectedIndicator.label] = value;
+    });
 
-    const average = data.indicators.length > 0 ? total / data.indicators.length : 0;
-
-    return {
-      name: country.label,
-      Rendimiento: average,
-    };
+    return chartItem;
   });
+
+  let chartTitle = "Rendimiento General de la Política Digital";
+  if (data.indicators.length === 1) {
+    chartTitle = data.indicators[0].label;
+  } else if (data.indicators.length > 1) {
+    chartTitle = "Comparación de Indicadores de Política Digital";
+  }
 
   return (
     <div className="flex flex-col justify-start items-start self-stretch flex-grow-0 flex-shrink-0 gap-8">
       <div className="flex flex-col justify-start items-start self-stretch flex-grow-0 flex-shrink-0 gap-6 p-4 rounded-lg bg-white border border-gray-200">
         <div className="flex flex-col justify-start items-start self-stretch flex-grow-0 flex-shrink-0 relative">
           <p className="self-stretch flex-grow-0 flex-shrink-0 text-xl font-bold text-left text-gray-800">
-            Rendimiento General de la Política Digital
+            {chartTitle}
           </p>
         </div>
         <ResponsiveContainer width="100%" height={240}>
@@ -63,7 +73,9 @@ const CompararChart = ({ data }) => {
             <YAxis />
             <Tooltip />
             <Legend />
-            <Bar dataKey="Rendimiento" fill="#1173d4" />
+            {data.indicators.map((indicator, index) => (
+              <Bar key={indicator.value} dataKey={indicator.label} fill={colors[index % colors.length]} />
+            ))}
           </BarChart>
         </ResponsiveContainer>
       </div>

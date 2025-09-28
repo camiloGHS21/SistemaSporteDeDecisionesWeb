@@ -82,51 +82,39 @@ const AsistenteAnalisis = ({ data, messages, setMessages }) => {
     }
 
     const allCountries = [data.country, ...data.references];
+    
     const barChartData = allCountries.map(country => {
-      const containsApiIndicator = data.indicators.some(i => i.value === 'api_indicator');
-      let apiDataIsValid = true;
-
-      if (containsApiIndicator) {
-        const countryApiData = data.apiData ? data.apiData[country.value] : undefined;
-        if (!countryApiData || countryApiData.length === 0) {
-          apiDataIsValid = false;
-        } else {
-          const validApiItems = countryApiData.filter(item => item && item.dataValue != null);
-          if (validApiItems.length === 0) {
-            apiDataIsValid = false;
-          }
-        }
-      }
-
-      if (containsApiIndicator && !apiDataIsValid) {
-        return {
-          name: country.label,
-          Rendimiento: null, // Don't render a bar if API data is missing
-        };
-      }
-
-      const total = data.indicators.reduce((acc, selectedIndicator) => {
-        let value = 0;
+      const chartItem = { name: country.label };
+  
+      data.indicators.forEach(selectedIndicator => {
+        let value;
         if (selectedIndicator.value === 'api_indicator') {
-          const countryApiData = data.apiData[country.value];
-          const validApiItems = countryApiData.filter(item => item && item.dataValue != null);
-          const apiTotal = validApiItems.reduce((apiAcc, apiItem) => apiAcc + (parseFloat(apiItem.dataValue) || 0), 0);
-          value = apiTotal / validApiItems.length;
+          if (data.apiData) {
+            const countryApiData = data.apiData[country.value];
+            if (countryApiData && countryApiData.length > 0) {
+              const validData = countryApiData.filter(item => item && item.dataValue != null);
+              if (validData.length > 0) {
+                const apiTotal = validData.reduce((apiAcc, apiItem) => apiAcc + (parseFloat(apiItem.dataValue) || 0), 0);
+                value = apiTotal / validData.length;
+              } else {
+                value = null; // No valid data
+              }
+            } else {
+              value = null; // No data array
+            }
+          } else {
+            value = null; // No apiData object
+          }
         } else {
           const countryMockData = mockData[country.value];
           if (countryMockData) {
             value = countryMockData[selectedIndicator.value] || 0;
           }
         }
-        return acc + value;
-      }, 0);
-
-      const average = data.indicators.length > 0 ? total / data.indicators.length : 0;
-
-      return {
-        name: country.label,
-        Rendimiento: average,
-      };
+        chartItem[selectedIndicator.label] = value;
+      });
+  
+      return chartItem;
     });
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
@@ -137,7 +125,7 @@ Contexto:
 - País principal: ${data.country.label}
 - Países de referencia: ${data.references.map(r => r.label).join(', ')}
 - Indicadores seleccionados: ${data.indicators.map(i => i.label).join(', ')}
-- Datos del gráfico (Rendimiento promedio calculado): ${JSON.stringify(barChartData, null, 2)}
+- Datos del gráfico: ${JSON.stringify(barChartData, null, 2)}
 
 Pregunta: ${inputValue}
 
