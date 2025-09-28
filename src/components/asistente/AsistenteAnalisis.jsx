@@ -83,12 +83,50 @@ const AsistenteAnalisis = ({ data, messages, setMessages }) => {
 
     const allCountries = [data.country, ...data.references];
     const barChartData = allCountries.map(country => {
-        const countryData = mockData[country.value];
-        const total = data.indicators.reduce((acc, indicator) => acc + countryData[indicator.value], 0);
+      const containsApiIndicator = data.indicators.some(i => i.value === 'api_indicator');
+      let apiDataIsValid = true;
+
+      if (containsApiIndicator) {
+        const countryApiData = data.apiData ? data.apiData[country.value] : undefined;
+        if (!countryApiData || countryApiData.length === 0) {
+          apiDataIsValid = false;
+        } else {
+          const validApiItems = countryApiData.filter(item => item && item.dataValue != null);
+          if (validApiItems.length === 0) {
+            apiDataIsValid = false;
+          }
+        }
+      }
+
+      if (containsApiIndicator && !apiDataIsValid) {
         return {
-            name: country.label,
-            Rendimiento: total / data.indicators.length,
+          name: country.label,
+          Rendimiento: null, // Don't render a bar if API data is missing
         };
+      }
+
+      const total = data.indicators.reduce((acc, selectedIndicator) => {
+        let value = 0;
+        if (selectedIndicator.value === 'api_indicator') {
+          const countryApiData = data.apiData[country.value];
+          const validApiItems = countryApiData.filter(item => item && item.dataValue != null);
+          const apiTotal = validApiItems.reduce((apiAcc, apiItem) => apiAcc + (parseFloat(apiItem.dataValue) || 0), 0);
+          value = apiTotal / validApiItems.length;
+        } else {
+          const countryMockData = mockData[country.value];
+          if (countryMockData) {
+            value = countryMockData[selectedIndicator.value] || 0;
+          }
+        }
+        return acc + value;
+      }, 0);
+
+      const average = data.indicators.length > 0 ? total / data.indicators.length : 0;
+
+      return {
+        name: country.label,
+        Rendimiento: average,
+      };
     });
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
