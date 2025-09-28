@@ -70,7 +70,21 @@ const CompararChart = ({ data }) => {
           <BarChart data={barChartData}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" />
-            <YAxis />
+            <YAxis tickFormatter={(value) => {
+                if (value >= 1000000000000) {
+                    return `${(value / 1000000000000).toFixed(1)}T`;
+                }
+                if (value >= 1000000000) {
+                    return `${(value / 1000000000).toFixed(1)}B`;
+                }
+                if (value >= 1000000) {
+                    return `${(value / 1000000).toFixed(1)}M`;
+                }
+                if (value >= 1000) {
+                    return `${(value / 1000).toFixed(1)}K`;
+                }
+                return value;
+            }} />
             <Tooltip />
             <Legend />
             {data.indicators.map((indicator, index) => (
