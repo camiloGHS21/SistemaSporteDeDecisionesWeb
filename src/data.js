@@ -8,6 +8,7 @@ export const countries = [
   { value: 'JP', label: 'Japón' },
   { value: 'DE', label: 'Alemania' },
   { value: 'FR', label: 'Francia' },
+  { value: 'CO', label: 'Colombia' },
 ];
 
 export const indicators = [
@@ -27,4 +28,5 @@ export const data = {
   DE: { AI: 65, BB: 75, CS: 85, DG: 95, TI: 50 },
   FR: { AI: 55, BB: 65, CS: 75, DG: 85, TI: 95 },
   AU: { AI: 45, BB: 55, CS: 65, DG: 75, TI: 85 },
+  CO: { AI: 40, BB: 50, CS: 60, DG: 70, TI: 80 },
 };
