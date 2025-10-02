@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import CompararHeader from '../components/comparar/CompararHeader';
+import Header from '../components/common/Header';
 import CompararForm from '../components/comparar/CompararForm';
 import CompararChart from '../components/comparar/CompararChart';
 import AsistenteAnalisis from '../components/asistente/AsistenteAnalisis';
@@ -82,7 +82,7 @@ const Comparar = () => {
   return (
     <div className="flex flex-col justify-start items-center w-full min-h-screen bg-[#f8f9fa]">
       <div className="w-full border-b border-gray-200">
-        <CompararHeader />
+        <Header />
       </div>
       <div className="w-full max-w-7xl mx-auto">
         <div className="flex flex-col justify-start items-start self-stretch flex-grow pt-8 px-12">

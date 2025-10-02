@@ -1,1 +1,18 @@
 @import "tailwindcss";
+
+@theme {
+  --color-primary: #0D6EFD;
+  --color-background-light: #F8F9FA;
+ 
+  --color-card-light: #FFFFFF;
+ 
+  --color-text-light: #212529;
+  
+  --color-subtext-light: #6C757D;
+
+  --color-border-light: #DEE2E6;
+ 
+
+  --font-display: "Inter", sans-serif;
+  --radius-default: 0.5rem;
+}
