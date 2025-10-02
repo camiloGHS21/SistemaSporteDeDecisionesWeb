@@ -5,6 +5,7 @@ import './index.css'
 import Login from '@pages/Login'
 import Register from '@pages/Register'
 import Comparar from '@pages/Comparar'
+import Recursos from '@pages/Recursos'
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
 
@@ -23,6 +24,10 @@ const router = createBrowserRouter([
       {
         path:'/comparar',
         element: <Comparar/>
+      },
+      {
+        path: '/recursos',
+        element: <Recursos/>
       }
     ]
   }

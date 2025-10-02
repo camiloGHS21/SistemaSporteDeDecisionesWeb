@@ -1,6 +1,13 @@
 import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
-const CompararHeader = () => {
+const Header = () => {
+  const location = useLocation();
+
+  const isActiveRoute = (path) => {
+    return location.pathname === path;
+  };
+
   return (
     <div className="flex justify-between items-center self-stretch flex-grow-0 flex-shrink-0 relative px-10 py-4 border-t-0 border-r-0 border-b border-l-0 border-gray-200">
       <div className="flex justify-start items-center flex-grow-0 flex-shrink-0 relative gap-3">
@@ -27,19 +34,19 @@ const CompararHeader = () => {
       </div>
       <div className="flex justify-start items-center flex-grow-0 flex-shrink-0 gap-8">
         <div className="flex flex-col justify-start items-start flex-grow-0 flex-shrink-0 relative">
-          <p className="flex-grow-0 flex-shrink-0 text-sm font-semibold text-left text-[#1173d4]">
+          <Link to="/comparar" className={`flex-grow-0 flex-shrink-0 text-sm font-semibold text-left ${isActiveRoute('/comparar') ? 'text-[#1173d4]' : 'text-slate-600'}`}>
             Comparar
-          </p>
+          </Link>
         </div>
         <div className="flex flex-col justify-start items-start flex-grow-0 flex-shrink-0 relative">
-          <p className="flex-grow-0 flex-shrink-0 text-sm font-medium text-left text-slate-600">
+          <Link to="/informe" className={`flex-grow-0 flex-shrink-0 text-sm font-medium text-left ${isActiveRoute('/informe') ? 'text-[#1173d4]' : 'text-slate-600'}`}>
             Informes
-          </p>
+          </Link>
         </div>
         <div className="flex flex-col justify-start items-start flex-grow-0 flex-shrink-0 relative">
-          <p className="flex-grow-0 flex-shrink-0 text-sm font-medium text-left text-slate-600">
+          <Link to="/recursos" className={`flex-grow-0 flex-shrink-0 text-sm font-medium text-left ${isActiveRoute('/recursos') ? 'text-[#1173d4]' : 'text-slate-600'}`}>
             Recursos
-          </p>
+          </Link>
         </div>
       </div>
       <div className="flex justify-start items-center flex-grow-0 flex-shrink-0 gap-4">
@@ -70,4 +77,4 @@ const CompararHeader = () => {
   );
 };
 
-export default CompararHeader;
+export default Header;
