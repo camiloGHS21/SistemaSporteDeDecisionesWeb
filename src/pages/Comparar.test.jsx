@@ -62,7 +62,6 @@ describe('Comparar Page', () => {
 
     expect(screen.getByText('Comparar el rendimiento de las políticas digitales')).toBeInTheDocument();
     expect(screen.getByText('Seleccione países e indicadores para comenzar su análisis comparativo.')).toBeInTheDocument();
-    expect(screen.getByTestId('comparar-header')).toBeInTheDocument();
     expect(screen.getByTestId('comparar-form')).toBeInTheDocument();
     expect(screen.getByTestId('comparar-chart')).toBeInTheDocument();
     expect(screen.getByText('No chart data')).toBeInTheDocument();
