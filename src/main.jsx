@@ -6,6 +6,7 @@ import Login from '@pages/Login'
 import Register from '@pages/Register'
 import Comparar from '@pages/Comparar'
 import Recursos from '@pages/Recursos'
+import Informe from '@pages/Informe'
 import NotFound from '@pages/NotFound'
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
@@ -29,6 +30,10 @@ const router = createBrowserRouter([
       {
         path: '/recursos',
         element: <Recursos/>
+      },
+      {
+        path: '/informe',
+        element: <Informe/>
       }
     ]
   },
