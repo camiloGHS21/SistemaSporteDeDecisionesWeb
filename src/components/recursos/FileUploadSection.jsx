@@ -1,10 +1,27 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import LoadingIndicator from '../common/LoadingIndicator';
+import Alert from '../common/Alert';
 
 const FileUploadSection = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadStatus, setUploadStatus] = useState('');
   const [showDownloadSuccess, setShowDownloadSuccess] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    if (uploadStatus) {
+      const lineCount = (uploadStatus.match(/\n/g) || []).length + 1;
+      const duration = lineCount <= 2 ? 8000 : 18000;
+
+      const timer = setTimeout(() => {
+        setUploadStatus('');
+      }, duration);
+      return () => clearTimeout(timer);
+    }
+  }, [uploadStatus]);
 
   const handleFileSelect = (event) => {
     const file = event.target.files[0];
@@ -29,45 +46,98 @@ const FileUploadSection = () => {
     }
   };
 
+  const handleClearSelectedFile = () => {
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const handleFileUpload = () => {
     if (!selectedFile) {
-      // Trigger file input click if no file selected
       fileInputRef.current?.click();
       return;
     }
 
-    // TODO: Implement actual file upload to server
-    setUploadStatus('Procesando archivo...');
-    
-    // Simulate upload process
-    setTimeout(() => {
-      setUploadStatus(`Archivo "${selectedFile.name}" cargado exitosamente`);
-      console.log('File uploaded:', selectedFile);
-      // Reset file selection after successful upload
-      setSelectedFile(null);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+    setIsLoading(true);
+    setUploadProgress(0);
+    setUploadStatus('');
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    const token = localStorage.getItem('token');
+
+    const xhr = new XMLHttpRequest();
+
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) {
+        const percentComplete = Math.round((event.loaded / event.total) * 100);
+        setUploadProgress(percentComplete);
       }
-    }, 2000);
+    };
+
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        setUploadProgress(100);
+        setTimeout(() => {
+          setIsLoading(false);
+          setUploadStatus(`Archivo "${selectedFile.name}" cargado. El procesamiento ha comenzado.`);
+          handleClearSelectedFile();
+        }, 1000);
+      } else {
+        setIsLoading(false);
+        let errorMessage = 'No se pudo cargar el archivo.';
+        try {
+            const errorResponse = JSON.parse(xhr.responseText);
+            if (errorResponse.errors && Array.isArray(errorResponse.errors)) {
+                errorMessage = errorResponse.errors.join('\n');
+            } else if (errorResponse.error) {
+                if (errorResponse.error.startsWith("File with name")) {
+                    const fileNameMatch = errorResponse.error.match(/'(.*?)'/);
+                    const fileName = fileNameMatch ? fileNameMatch[1] : '';
+                    errorMessage = `Un archivo con el nombre '${fileName}' ya existe.`;
+                } else if (errorResponse.error === "File with identical content already exists.") {
+                    errorMessage = "Ya existe un archivo con contenido idéntico.";
+                } else {
+                    errorMessage = errorResponse.error;
+                }
+            } else {
+                errorMessage = xhr.responseText;
+            }
+        } catch (e) {
+            errorMessage = xhr.responseText || 'No se pudo cargar el archivo.';
+        }
+        setUploadStatus(errorMessage);
+      }
+    };
+
+    xhr.onerror = () => {
+      setIsLoading(false);
+      setUploadStatus('Error de conexión al intentar cargar el archivo.');
+    };
+
+    xhr.open('POST', 'http://localhost:8080/api/upload');
+    if (token) {
+      xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+    }
+    xhr.send(formData);
   };
 
   const handleDownloadTemplate = () => {
     // Create CSV template with the required columns
     const csvHeaders = [
-      'CodigoISO_Pais',
-      'NombrePais', 
-      'ID_indicador',
-      'Nombre_Indicador',
-      'Año',
-      'Valor',
-      'Unidad'
+      'pais',
+      'tipo_indicador',
+      'valor',
+      'anio',
+      'fuente'
     ];
     
     // Add sample data rows
     const sampleData = [
-      ['USA', 'Estados Unidos', 'GDP_001', 'PIB per cápita', '2023', '70000', 'Dólares'],
-      ['COL', 'Colombia', 'GDP_001', 'PIB per cápita', '2023', '15000', 'Dólares'],
-      ['ESP', 'España', 'INF_001', 'Tasa de inflación', '2023', '3.5', 'Porcentaje']
+      ['Colombia', 'Tasa de Desempleo', '5.8', '2023', 'Banco Mundial'],
+      ['Colombia', 'PIB per capita', '45000.50', '2023', 'FMI'],
+      ['Mexico', 'Tasa de Alfabetización', '99.1', '2022', 'UNESCO']
     ];
     
     // Create CSV content
@@ -91,12 +161,19 @@ const FileUploadSection = () => {
       URL.revokeObjectURL(url);
       
       setShowDownloadSuccess(true);
-      setTimeout(() => setShowDownloadSuccess(false), 3000);
+      setTimeout(() => setShowDownloadSuccess(false), 8000);
     }
   };
 
   return (
     <div>
+      {isLoading && (
+        <LoadingIndicator 
+          message="Subiendo y procesando archivo..." 
+          fileName={selectedFile.name}
+          progress={uploadProgress}
+        />
+      )}
       <h2 className="text-2xl font-semibold text-text-light dark:text-text-dark mb-4 border-b border-border-light dark:border-border-dark pb-2">
         2. Carga de Datos Personalizados
       </h2>
@@ -165,35 +242,13 @@ const FileUploadSection = () => {
           </table>
         </div>
         <div className="mt-6">
-          {/* Download success notification */}
           {showDownloadSuccess && (
-            <div className="mb-4 p-4 bg-blue-500 rounded-lg shadow-sm">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm font-medium text-white">
-                    Plantilla descargada exitosamente
-                  </p>
-                  <p className="text-xs text-blue-100 mt-1">
-                    El archivo se ha guardado en tu carpeta de descargas
-                  </p>
-                </div>
-                <div className="ml-auto pl-3">
-                  <button
-                    onClick={() => setShowDownloadSuccess(false)}
-                    className="inline-flex text-white hover:text-blue-200"
-                  >
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            </div>
+            <Alert 
+              type="success" 
+              title="Plantilla descargada exitosamente"
+              message="El archivo se ha guardado en tu carpeta de descargas."
+              onClose={() => setShowDownloadSuccess(false)}
+            />
           )}
           
           {/* Hidden file input */}
@@ -207,51 +262,36 @@ const FileUploadSection = () => {
           
           {/* File selection display */}
           {selectedFile && (
-            <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-md">
-              <div className="flex items-center">
-                <span className="material-icons text-green-600 dark:text-green-400 mr-2">check_circle</span>
-                <span className="text-green-800 dark:text-green-200 text-sm">
-                  Archivo seleccionado: <strong>{selectedFile.name}</strong>
-                </span>
-              </div>
-            </div>
+            <Alert 
+              type="info"
+              title="Archivo seleccionado:"
+              message={selectedFile.name}
+              onClose={handleClearSelectedFile}
+            />
           )}
           
           {/* Upload status */}
-          {uploadStatus && (
-            <div className={`mb-4 p-3 rounded-md ${
-              uploadStatus.includes('exitosamente') 
-                ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 text-green-800 dark:text-green-200'
-                : uploadStatus.includes('Procesando')
-                ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 text-blue-800 dark:text-blue-200'
-                : 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 text-red-800 dark:text-red-200'
-            }`}>
-              <div className="flex items-center">
-                <span className="material-icons mr-2">
-                  {uploadStatus.includes('exitosamente') ? 'check_circle' : 
-                   uploadStatus.includes('Procesando') ? 'hourglass_empty' : 'error'}
-                </span>
-                <span className="text-sm">{uploadStatus}</span>
-              </div>
-            </div>
+          {uploadStatus && !isLoading && (
+            <Alert
+              type={uploadStatus.includes('exitosamente') || uploadStatus.includes('cargado') ? 'success' : 'error'}
+              title={uploadStatus.includes('exitosamente') || uploadStatus.includes('cargado') ? 'Éxito:' : ''}
+              message={uploadStatus}
+              onClose={() => setUploadStatus('')}
+            />
           )}
           
           <div className="flex items-center space-x-4">
             <button 
               onClick={handleFileUpload}
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={uploadStatus.includes('Procesando')}
+              disabled={isLoading}
             >
-              <span className="material-icons mr-2">
-                {selectedFile ? 'cloud_upload' : 'upload_file'}
-              </span>
               {selectedFile ? 'Subir Archivo' : 'Seleccionar Archivo'}
             </button>
             <button 
               onClick={handleDownloadTemplate}
               className="inline-flex items-center text-sm font-medium text-primary hover:underline"
             >
-              <span className="material-icons mr-1">download</span>
               Descargar Plantilla
             </button>
           </div>
