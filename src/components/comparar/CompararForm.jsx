@@ -1,13 +1,7 @@
 import React, { useState } from 'react';
-import { countries, indicators as originalIndicators } from '../../data';
+import { countries } from '../../data';
 
-// Add our virtual API indicator to the list
-const allIndicators = [
-  ...originalIndicators,
-  { label: 'Rendimiento Digital (API)', value: 'api_indicator' },
-];
-
-const CompararForm = ({ onCompare }) => {
+const CompararForm = ({ onCompare, indicators = [] }) => {
   const [selectedCountry, setSelectedCountry] = useState('');
   const [selectedReferenceCountries, setSelectedReferenceCountries] = useState([]);
   const [selectedIndicators, setSelectedIndicators] = useState([]);
@@ -15,8 +9,7 @@ const CompararForm = ({ onCompare }) => {
   const handleCompare = () => {
     const country = countries.find(c => c.value === selectedCountry);
     const references = selectedReferenceCountries.map(value => countries.find(c => c.value === value));
-    // Use the full list of indicators to find the selected ones
-    const inds = selectedIndicators.map(value => allIndicators.find(i => i.value === value));
+    const inds = selectedIndicators.map(value => indicators.find(i => i.value === value));
 
     onCompare({
       country: country,
@@ -82,7 +75,7 @@ const CompararForm = ({ onCompare }) => {
             onChange={(e) => setSelectedIndicators(Array.from(e.target.selectedOptions, option => option.value))}
             className="self-stretch flex-grow-0 flex-shrink-0 h-[80px] relative overflow-auto rounded-md bg-white border border-gray-300 p-2"
           >
-            {allIndicators.map(indicator => (
+            {indicators.map(indicator => (
               <option key={indicator.value} value={indicator.value}>{indicator.label}</option>
             ))}
           </select>
