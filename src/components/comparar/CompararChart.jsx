@@ -1,7 +1,20 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-const CompararChart = ({ data }) => {
+const CompararChart = ({ data, isGenerating }) => {
+
+  if (isGenerating) {
+    return (
+      <div className="flex flex-col justify-start items-start self-stretch flex-grow-0 flex-shrink-0 gap-8">
+        <div className="flex flex-col justify-center items-center self-stretch flex-grow-0 flex-shrink-0 gap-6 p-4 rounded-lg bg-white border border-gray-200 h-[360px]">
+          <div className="animate-pulse w-full h-full flex flex-col justify-center items-center">
+            <div className="w-3/4 h-8 bg-slate-200 rounded mb-4"></div>
+            <div className="w-full h-64 bg-slate-200 rounded"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!data || !data.country || data.indicators.length === 0) {
     return (

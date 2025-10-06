@@ -1,5 +1,5 @@
 
-const BASE_URL = 'http://localhost:8080/api/admin';
+const BASE_URL = '/api/admin';
 
 const getAuthToken = () => {
   return localStorage.getItem('token');

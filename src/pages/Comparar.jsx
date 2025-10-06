@@ -16,6 +16,7 @@ const Comparar = () => {
   ]);
   const navigate = useNavigate();
   const [indicators, setIndicators] = useState([]);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     const fetchIndicators = async () => {
@@ -25,7 +26,7 @@ const Comparar = () => {
         return;
       }
       try {
-        const response = await fetch('http://localhost:8080/api/indicadores/pais/Colombia', {
+        const response = await fetch('/api/indicadores/pais/Colombia', {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
@@ -57,9 +58,11 @@ const Comparar = () => {
   }, [navigate]);
 
   const handleCompare = async (data) => {
+    setIsGenerating(true);
     const token = localStorage.getItem('token');
     if (!token) {
       navigate('/');
+      setIsGenerating(false);
       return;
     }
 
@@ -70,7 +73,7 @@ const Comparar = () => {
     try {
       if (isOecd) {
         const oecdPromises = countriesToFetch.map(country =>
-          fetch(`http://localhost:8080/api/oecd-data/${country.value}/2024`, {
+          fetch(`/api/oecd-data/${country.value}/2024`, {
             headers: { 'Authorization': `Bearer ${token}` },
           }).then(res => {
             if (!res.ok) return []; // Return empty array on error
@@ -80,7 +83,7 @@ const Comparar = () => {
         fetchedData = await Promise.all(oecdPromises);
       } else {
         const primaryPromises = countriesToFetch.map(country =>
-          fetch(`http://localhost:8080/api/indicadores/pais/${country.label}`, {
+          fetch(`/api/indicadores/pais/${country.label}`, {
             headers: { 'Authorization': `Bearer ${token}` },
           }).then(res => {
             if (!res.ok) return []; // Return empty array on error
@@ -104,6 +107,8 @@ const Comparar = () => {
     } catch (error) {
       console.error('Error during data fetch:', error);
       // Handle auth errors inside the fetch logic if possible
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -137,10 +142,10 @@ const Comparar = () => {
             </div>
             <div className="flex justify-start items-start self-stretch flex-grow-0 flex-shrink-0 gap-8">
               <div className="w-1/3">
-                <CompararForm onCompare={handleCompare} indicators={indicators} />
+                <CompararForm onCompare={handleCompare} indicators={indicators} isGenerating={isGenerating} />
               </div>
               <div className="w-2/3">
-                <CompararChart data={comparisonData} />
+                <CompararChart data={comparisonData} isGenerating={isGenerating} />
               </div>
             </div>
           </div>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { countries } from '../../data';
 
-const CompararForm = ({ onCompare, indicators = [] }) => {
+const CompararForm = ({ onCompare, indicators = [], isGenerating }) => {
   const [selectedCountry, setSelectedCountry] = useState('');
   const [selectedReferenceCountries, setSelectedReferenceCountries] = useState([]);
   const [selectedIndicators, setSelectedIndicators] = useState([]);
@@ -83,29 +83,39 @@ const CompararForm = ({ onCompare, indicators = [] }) => {
       </div>
       <button
         onClick={handleCompare}
-        className="flex justify-center items-center self-stretch flex-grow-0 flex-shrink-0 gap-2 px-4 py-3 rounded-md bg-[#1173d4]"
+        disabled={isGenerating}
+        className="flex justify-center items-center self-stretch flex-grow-0 flex-shrink-0 gap-2 px-4 py-3 rounded-md bg-[#1173d4] disabled:opacity-50"
       >
-        <div className="flex flex-col justify-start items-start flex-grow-0 flex-shrink-0 relative py-0.5">
-          <svg
-            width={17}
-            height={20}
-            viewBox="0 0 17 20"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="flex-grow-0 flex-shrink-0 w-4 h-5 relative"
-            preserveAspectRatio="none"
-          >
-            <path
-              d="M5.49829 15.3333L4.56496 14.3833L6.28162 12.6666H1.49829V11.3333H6.28162L4.56496 9.61665L5.49829 8.66665L8.83162 12L5.49829 15.3333ZM10.8316 11.3333L7.49829 7.99998L10.8316 4.66665L11.765 5.61665L10.0483 7.33331H14.8316V8.66665H10.0483L11.765 10.3833L10.8316 11.3333Z"
-              fill="white"
-            />
-          </svg>
-        </div>
-        <div className="flex flex-col justify-start items-center flex-grow-0 flex-shrink-0 relative">
-          <p className="flex-grow-0 flex-shrink-0 text-sm font-bold text-center text-white">
-            Comparar
-          </p>
-        </div>
+        {isGenerating ? (
+          <>
+            <span className="material-symbols-outlined animate-spin">sync</span>
+            <span>Comparando...</span>
+          </>
+        ) : (
+          <>
+            <div className="flex flex-col justify-start items-start flex-grow-0 flex-shrink-0 relative py-0.5">
+              <svg
+                width={17}
+                height={20}
+                viewBox="0 0 17 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="flex-grow-0 flex-shrink-0 w-4 h-5 relative"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M5.49829 15.3333L4.56496 14.3833L6.28162 12.6666H1.49829V11.3333H6.28162L4.56496 9.61665L5.49829 8.66665L8.83162 12L5.49829 15.3333ZM10.8316 11.3333L7.49829 7.99998L10.8316 4.66665L11.765 5.61665L10.0483 7.33331H14.8316V8.66665H10.0483L11.765 10.3833L10.8316 11.3333Z"
+                  fill="white"
+                />
+              </svg>
+            </div>
+            <div className="flex flex-col justify-start items-center flex-grow-0 flex-shrink-0 relative">
+              <p className="flex-grow-0 flex-shrink-0 text-sm font-bold text-center text-white">
+                Comparar
+              </p>
+            </div>
+          </>
+        )}
       </button>
     </div>
   );

@@ -116,7 +116,7 @@ const FileUploadSection = () => {
       setUploadStatus('Error de conexión al intentar cargar el archivo.');
     };
 
-    xhr.open('POST', 'http://localhost:8080/api/upload');
+    xhr.open('POST', '/api/upload');
     if (token) {
       xhr.setRequestHeader('Authorization', `Bearer ${token}`);
     }
