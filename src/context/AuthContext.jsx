@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
 
       try {
         // 1. Validate general token
-        const authResponse = await fetch('/api/auth/validate', {
+        const authResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/validate`, {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}` },
         });
@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
         if (!isAuthenticated) setIsAuthenticated(true);
 
         // 2. Validate if admin
-        const adminResponse = await fetch('/api/admin/auth/validate', {
+        const adminResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/auth/validate`, {
           headers: { 'Authorization': `Bearer ${token}` },
         });
 
