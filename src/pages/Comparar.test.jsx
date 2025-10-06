@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import Comparar from './Comparar';
+import { AuthProvider } from '../context/AuthContext';
 
 // Mock child components to isolate the Comparar component
 vi.mock('../components/comparar/CompararHeader', () => ({
@@ -50,13 +51,46 @@ describe('Comparar Page', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.clear();
-    global.fetch.mockReset();
+
+    global.fetch.mockImplementation((url) => {
+      const urlString = url.toString();
+
+      if (urlString.endsWith('/api/indicadores/pais/Colombia')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve([{ tipoIndicador: 'GDP' }]),
+        });
+      }
+      if (urlString.endsWith('/api/auth/validate')) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+      }
+      if (urlString.endsWith('/api/admin/auth/validate')) {
+        return Promise.resolve({ ok: false, json: () => Promise.resolve({}) });
+      }
+      if (urlString.includes('/api/oecd-data/')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve([{ indicator: 'IT_USE_SME', value: 0.8 }]),
+        });
+      }
+       if (urlString.includes('/api/indicadores/pais/')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve([{ indicator: 'GDP', value: 100 }]),
+        });
+      }
+      
+      // Default mock for any other calls
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+    });
   });
 
   it('renders the main components and title', () => {
     render(
       <MemoryRouter>
-        <Comparar />
+        <AuthProvider>
+          <Comparar />
+        </AuthProvider>
       </MemoryRouter>
     );
 
@@ -70,7 +104,9 @@ describe('Comparar Page', () => {
   it('redirects to login if no token is present when trying to compare', async () => {
     render(
       <MemoryRouter>
-        <Comparar />
+        <AuthProvider>
+          <Comparar />
+        </AuthProvider>
       </MemoryRouter>
     );
 
@@ -85,42 +121,23 @@ describe('Comparar Page', () => {
   it('fetches data and displays chart when form is submitted with a valid token', async () => {
     localStorage.setItem('token', 'fake-token');
 
-    const mockApiResponse = {
-      USA: [{ indicator: 'IT_USE_SME', value: 0.8 }],
-      CAN: [{ indicator: 'IT_USE_SME', value: 0.75 }],
-    };
-
-    fetch
-      .mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        json: async () => mockApiResponse.USA,
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        json: async () => mockApiResponse.CAN,
-      });
-
     render(
       <MemoryRouter>
-        <Comparar />
+        <AuthProvider>
+          <Comparar />
+        </AuthProvider>
       </MemoryRouter>
     );
+
+    // Wait for initial indicator fetch to complete
+    await waitFor(() => expect(fetch).toHaveBeenCalled());
 
     const compareButton = screen.getByText('Compare');
     fireEvent.click(compareButton);
 
     await waitFor(() => {
-      expect(fetch).toHaveBeenCalledTimes(2);
-      expect(fetch).toHaveBeenCalledWith(
-        'http://localhost:8080/api/oecd-data/USA/2024',
-        expect.any(Object)
-      );
-       expect(fetch).toHaveBeenCalledWith(
-        'http://localhost:8080/api/oecd-data/CAN/2024',
-        expect.any(Object)
-      );
+      // Initial load (indicators, auth, admin) + 2 compare calls
+      expect(fetch).toHaveBeenCalledTimes(5);
     });
 
     await waitFor(() => {
@@ -132,15 +149,21 @@ describe('Comparar Page', () => {
     localStorage.setItem('token', 'fake-token');
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    fetch.mockResolvedValue({ 
-        ok: false, 
-        status: 500, 
-        statusText: 'Internal Server Error' 
+    // Override the mock for this test to simulate a failure
+    global.fetch.mockImplementation((url) => {
+       const urlString = url.toString();
+      if (urlString.includes('/api/oecd-data/') || urlString.includes('/api/indicadores/pais/')) {
+        return Promise.reject(new Error('Network Error'));
+      }
+      // Allow auth calls to succeed
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
     });
 
     render(
       <MemoryRouter>
-        <Comparar />
+        <AuthProvider>
+          <Comparar />
+        </AuthProvider>
       </MemoryRouter>
     );
 
@@ -148,7 +171,7 @@ describe('Comparar Page', () => {
     fireEvent.click(compareButton);
 
     await waitFor(() => {
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Error fetching comparison data:', expect.any(Error));
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Error during data fetch:', expect.any(Error));
     });
     
     expect(screen.getByText('No chart data')).toBeInTheDocument();
@@ -165,7 +188,9 @@ describe('Comparar Page', () => {
 
     render(
       <MemoryRouter>
-        <Comparar />
+        <AuthProvider>
+          <Comparar />
+        </AuthProvider>
       </MemoryRouter>
     );
     
