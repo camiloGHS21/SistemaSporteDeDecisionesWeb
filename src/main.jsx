@@ -9,6 +9,7 @@ import Recursos from '@pages/Recursos'
 import Informe from '@pages/Informe'
 import NotFound from '@pages/NotFound'
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import AdminRoute from './components/auth/AdminRoute'; // Import AdminRoute
 import { AuthProvider } from './context/AuthContext';
 import Admin from '@pages/Admin';
 
@@ -36,6 +37,11 @@ const router = createBrowserRouter([
         path: '/informe',
         element: <Informe/>
       },
+    ]
+  },
+  {
+    element: <AdminRoute />,
+    children: [
       {
         path: '/admin',
         element: <Admin />
