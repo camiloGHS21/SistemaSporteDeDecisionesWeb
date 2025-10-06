@@ -3,8 +3,8 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 
-// https://vite.dev/config/
-export default defineConfig({
+// https://vitejs.dev/config/
+export default defineConfig(({ command }) => ({
   plugins: [
     react({
       babel: {
@@ -20,7 +20,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',
+        target: command === 'build' ? 'http://172.206.66.233:8080' : 'http://localhost:8080',
         changeOrigin: true,
       },
     },
@@ -35,4 +35,4 @@ export default defineConfig({
     },
   },
 
-})
+}))
