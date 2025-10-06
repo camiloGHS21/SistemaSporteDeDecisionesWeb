@@ -17,14 +17,7 @@ export default defineConfig(({ command }) => ({
     }),
     tailwindcss(),
   ],
-  server: {
-    proxy: {
-      '/api': {
-        target: command === 'build' ? 'http://172.206.66.233:8080' : 'http://localhost:8080',
-        changeOrigin: true,
-      },
-    },
-  },
+
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

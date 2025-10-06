@@ -116,7 +116,7 @@ const FileUploadSection = () => {
       setUploadStatus('Error de conexión al intentar cargar el archivo.');
     };
 
-    xhr.open('POST', '/api/upload');
+    xhr.open('POST', `${import.meta.env.VITE_API_URL}/api/upload`);
     if (token) {
       xhr.setRequestHeader('Authorization', `Bearer ${token}`);
     }

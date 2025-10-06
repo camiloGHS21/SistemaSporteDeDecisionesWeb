@@ -26,7 +26,7 @@ const Comparar = () => {
         return;
       }
       try {
-        const response = await fetch('/api/indicadores/pais/Colombia', {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/indicadores/pais/Colombia`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
@@ -73,7 +73,7 @@ const Comparar = () => {
     try {
       if (isOecd) {
         const oecdPromises = countriesToFetch.map(country =>
-          fetch(`/api/oecd-data/${country.value}/2024`, {
+          fetch(`${import.meta.env.VITE_API_URL}/api/oecd-data/${country.value}/2024`, {
             headers: { 'Authorization': `Bearer ${token}` },
           }).then(res => {
             if (!res.ok) return []; // Return empty array on error
@@ -83,7 +83,7 @@ const Comparar = () => {
         fetchedData = await Promise.all(oecdPromises);
       } else {
         const primaryPromises = countriesToFetch.map(country =>
-          fetch(`/api/indicadores/pais/${country.label}`, {
+          fetch(`${import.meta.env.VITE_API_URL}/api/indicadores/pais/${country.label}`, {
             headers: { 'Authorization': `Bearer ${token}` },
           }).then(res => {
             if (!res.ok) return []; // Return empty array on error
