@@ -15,63 +15,104 @@ const Comparar = () => {
     },
   ]);
   const navigate = useNavigate();
+  const [indicators, setIndicators] = useState([]);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  useEffect(() => {
+    const fetchIndicators = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/');
+        return;
+      }
+      try {
+        const response = await fetch('/api/indicadores/pais/Colombia', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.length > 0) {
+            const uniqueIndicators = [...new Set(data.map(item => item.tipoIndicador))];
+            const formattedIndicators = uniqueIndicators.map(indicator => ({
+              label: indicator,
+              value: indicator,
+            }));
+            setIndicators(formattedIndicators);
+            return; // Success, do not fall back
+          }
+        }
+
+        // If primary API fails or returns no data, fall back to OECD
+        setIndicators([{ label: "PIB (OCDE)", value: "gdp_oecd" }]);
+
+      } catch (error) {
+        console.error('Error fetching indicators, falling back to OECD:', error);
+        setIndicators([{ label: "PIB (OCDE)", value: "gdp_oecd" }]);
+      }
+    };
+
+    fetchIndicators();
+  }, [navigate]);
 
   const handleCompare = async (data) => {
+    setIsGenerating(true);
     const token = localStorage.getItem('token');
     if (!token) {
       navigate('/');
+      setIsGenerating(false);
       return;
     }
 
-    const countriesToFetch = [data.country, ...data.references];
-    const year = 2024; // Assuming a fixed year for now
+    const countriesToFetch = [data.country, ...data.references].filter(Boolean);
+    const isOecd = data.indicators.some(ind => ind.value === 'gdp_oecd');
 
+    let fetchedData;
     try {
-      const fetchedData = await Promise.all(
-        countriesToFetch.map(country =>
-          fetch(`http://localhost:8080/api/oecd-data/${country.value}/${year}`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
+      if (isOecd) {
+        const oecdPromises = countriesToFetch.map(country =>
+          fetch(`/api/oecd-data/${country.value}/2024`, {
+            headers: { 'Authorization': `Bearer ${token}` },
           }).then(res => {
-            if (res.status === 401 || res.status === 403) {
-              localStorage.removeItem('token');
-              navigate('/');
-              throw new Error('Authentication failed');
-            }
-            if (!res.ok) {
-              throw new Error(`Failed to fetch data for ${country.label}`);
-            }
+            if (!res.ok) return []; // Return empty array on error
             return res.json();
           })
-        )
-      );
+        );
+        fetchedData = await Promise.all(oecdPromises);
+      } else {
+        const primaryPromises = countriesToFetch.map(country =>
+          fetch(`/api/indicadores/pais/${country.label}`, {
+            headers: { 'Authorization': `Bearer ${token}` },
+          }).then(res => {
+            if (!res.ok) return []; // Return empty array on error
+            return res.json();
+          })
+        );
+        fetchedData = await Promise.all(primaryPromises);
+      }
 
-      // The API returns an array of data for each country.
-      // We need to transform this into a structure the chart can use.
-      // This is a placeholder transformation. You will need to adjust it
-      // based on the actual structure of your API response and chart requirements.
       const transformedData = {
-        ...data, // This contains selected indicators, etc.
-        // We are creating a mock structure here for the chart from the fetched data.
+        ...data,
+        dataType: isOecd ? 'oecd' : 'primary',
         apiData: countriesToFetch.reduce((acc, country, index) => {
           acc[country.value] = fetchedData[index];
           return acc;
-        }, {})
+        }, {}),
       };
-
-      console.log('Fetched Data from API:', fetchedData);
-      console.log('Transformed Data for Chart:', transformedData);
 
       setComparisonData(transformedData);
 
     } catch (error) {
-      console.error('Error fetching comparison data:', error);
-      // Optionally, show an error message to the user
+      console.error('Error during data fetch:', error);
+      // Handle auth errors inside the fetch logic if possible
+    } finally {
+      setIsGenerating(false);
     }
   };
 
-  const isChartDataAvailable = comparisonData && comparisonData.country && comparisonData.references.length > 0 && comparisonData.indicators.length > 0;
+  const isChartDataAvailable = comparisonData && comparisonData.country && comparisonData.indicators.length > 0;
 
   useEffect(() => {
     if (!isChartDataAvailable && isChatOpen) {
@@ -101,10 +142,10 @@ const Comparar = () => {
             </div>
             <div className="flex justify-start items-start self-stretch flex-grow-0 flex-shrink-0 gap-8">
               <div className="w-1/3">
-                <CompararForm onCompare={handleCompare} />
+                <CompararForm onCompare={handleCompare} indicators={indicators} isGenerating={isGenerating} />
               </div>
               <div className="w-2/3">
-                <CompararChart data={comparisonData} />
+                <CompararChart data={comparisonData} isGenerating={isGenerating} />
               </div>
             </div>
           </div>

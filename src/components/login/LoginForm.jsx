@@ -7,14 +7,14 @@ const LoginForm = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { setIsAuthenticated } = useAuth(); // Get the function from context
+  const { login } = useAuth(); // Get the function from context
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
     try {
-      const response = await fetch('http://localhost:8080/api/auth/login', {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -24,8 +24,7 @@ const LoginForm = () => {
 
       if (response.ok) {
         const data = await response.json();
-        localStorage.setItem('token', data.token);
-        setIsAuthenticated(true); // Notify the app that user is authenticated
+        login(data.token); // Use the login function from context
         navigate('/comparar');
       } else {
         const errorData = await response.json();

@@ -1,53 +1,62 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { data as mockData } from '../../data'; // We still need mockData for the original indicators
 
-const CompararChart = ({ data }) => {
+const CompararChart = ({ data, isGenerating }) => {
 
-  if (!data || !data.country || data.references.length === 0 || data.indicators.length === 0) {
+  if (isGenerating) {
     return (
       <div className="flex flex-col justify-start items-start self-stretch flex-grow-0 flex-shrink-0 gap-8">
         <div className="flex flex-col justify-center items-center self-stretch flex-grow-0 flex-shrink-0 gap-6 p-4 rounded-lg bg-white border border-gray-200 h-[360px]">
-          <p className="text-lg text-gray-500">Seleccione países e indicadores para ver los gráficos.</p>
+          <div className="animate-pulse w-full h-full flex flex-col justify-center items-center">
+            <div className="w-3/4 h-8 bg-slate-200 rounded mb-4"></div>
+            <div className="w-full h-64 bg-slate-200 rounded"></div>
+          </div>
         </div>
       </div>
     );
   }
 
-  const allCountries = [data.country, ...data.references];
+  if (!data || !data.country || data.indicators.length === 0) {
+    return (
+      <div className="flex flex-col justify-start items-start self-stretch flex-grow-0 flex-shrink-0 gap-8">
+        <div className="flex flex-col justify-center items-center self-stretch flex-grow-0 flex-shrink-0 gap-6 p-4 rounded-lg bg-white border border-gray-200 h-[360px]">
+          <p className="text-lg text-gray-500">Seleccione un país y al menos un indicador para ver los gráficos.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const allCountries = [data.country, ...data.references].filter(Boolean);
   const colors = ['#1173d4', '#ff8042', '#ffbb28', '#00C49F', '#FF8042', '#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
   const barChartData = allCountries.map(country => {
     const chartItem = { name: country.label };
+    const countryApiData = data.apiData[country.value];
 
-    data.indicators.forEach(selectedIndicator => {
-      let value;
-      if (selectedIndicator.value === 'api_indicator') {
-        if (data.apiData) {
-          const countryApiData = data.apiData[country.value];
-          if (countryApiData && countryApiData.length > 0) {
-            const validData = countryApiData.filter(item => item && item.dataValue != null);
-            if (validData.length > 0) {
-              const apiTotal = validData.reduce((apiAcc, apiItem) => apiAcc + (parseFloat(apiItem.dataValue) || 0), 0);
-              value = apiTotal / validData.length;
-            } else {
-              value = null; // No valid data
-            }
-          } else {
-            value = null; // No data array
-          }
-        } else {
-          value = null; // No apiData object
-        }
-      } else {
-        const countryMockData = mockData[country.value];
-        if (countryMockData) {
-          value = countryMockData[selectedIndicator.value] || 0;
-        }
+    if (data.dataType === 'oecd') {
+      let value = null;
+      if (countryApiData && countryApiData.length > 0) {
+        // Average all dataValue properties from the OECD response
+        const total = countryApiData.reduce((acc, item) => acc + parseFloat(item.dataValue || 0), 0);
+        value = total / countryApiData.length;
       }
-      chartItem[selectedIndicator.label] = value;
-    });
-
+      // The label for the bar is the indicator's label (e.g., "PIB (OCDE)")
+      if (data.indicators[0]) {
+        chartItem[data.indicators[0].label] = value;
+      }
+    } else {
+      // Handle primary data type
+      data.indicators.forEach(selectedIndicator => {
+        let value = null;
+        if (countryApiData) {
+          const indicatorData = countryApiData.find(d => d.tipoIndicador === selectedIndicator.value);
+          if (indicatorData) {
+            value = indicatorData.valor;
+          }
+        }
+        chartItem[selectedIndicator.label] = value;
+      });
+    }
     return chartItem;
   });
 

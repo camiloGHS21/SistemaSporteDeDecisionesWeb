@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { data as mockData } from '../../data';
 
 const AsistenteAnalisis = ({ data, messages, setMessages }) => {
   const [inputValue, setInputValue] = useState('');
@@ -58,11 +57,11 @@ const AsistenteAnalisis = ({ data, messages, setMessages }) => {
     setInputValue('');
     setIsLoading(true);
 
-    if (!data || !data.country || data.references.length === 0 || data.indicators.length === 0) {
+    if (!data || !data.country || data.indicators.length === 0) {
       setTimeout(() => {
         const botMessage = {
           sender: 'bot',
-          text: 'Por favor, primero selecciona países e indicadores para analizar.',
+          text: 'Por favor, primero selecciona un país y al menos un indicador para analizar.',
         };
         setMessages((prevMessages) => [...prevMessages, botMessage]);
         setIsLoading(false);
@@ -81,39 +80,33 @@ const AsistenteAnalisis = ({ data, messages, setMessages }) => {
         return;
     }
 
-    const allCountries = [data.country, ...data.references];
+    const allCountries = [data.country, ...data.references].filter(Boolean);
     
     const barChartData = allCountries.map(country => {
       const chartItem = { name: country.label };
+      const countryApiData = data.apiData[country.value];
   
-      data.indicators.forEach(selectedIndicator => {
-        let value;
-        if (selectedIndicator.value === 'api_indicator') {
-          if (data.apiData) {
-            const countryApiData = data.apiData[country.value];
-            if (countryApiData && countryApiData.length > 0) {
-              const validData = countryApiData.filter(item => item && item.dataValue != null);
-              if (validData.length > 0) {
-                const apiTotal = validData.reduce((apiAcc, apiItem) => apiAcc + (parseFloat(apiItem.dataValue) || 0), 0);
-                value = apiTotal / validData.length;
-              } else {
-                value = null; // No valid data
-              }
-            } else {
-              value = null; // No data array
-            }
-          } else {
-            value = null; // No apiData object
-          }
-        } else {
-          const countryMockData = mockData[country.value];
-          if (countryMockData) {
-            value = countryMockData[selectedIndicator.value] || 0;
-          }
+      if (data.dataType === 'oecd') {
+        let value = null;
+        if (countryApiData && countryApiData.length > 0) {
+          const total = countryApiData.reduce((acc, item) => acc + parseFloat(item.dataValue || 0), 0);
+          value = total / countryApiData.length;
         }
-        chartItem[selectedIndicator.label] = value;
-      });
-  
+        if (data.indicators[0]) {
+          chartItem[data.indicators[0].label] = value;
+        }
+      } else {
+        data.indicators.forEach(selectedIndicator => {
+          let value = null;
+          if (countryApiData) {
+            const indicatorData = countryApiData.find(d => d.tipoIndicador === selectedIndicator.value);
+            if (indicatorData) {
+              value = indicatorData.valor;
+            }
+          }
+          chartItem[selectedIndicator.label] = value;
+        });
+      }
       return chartItem;
     });
 

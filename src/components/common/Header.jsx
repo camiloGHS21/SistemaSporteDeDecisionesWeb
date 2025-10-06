@@ -1,12 +1,21 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const Header = () => {
   const location = useLocation();
+  const { isAdmin, logout } = useAuth();
+  const navigate = useNavigate();
 
   const isActiveRoute = (path) => {
     return location.pathname === path;
   };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+  const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
 
   return (
     <div className="flex justify-between items-center self-stretch flex-grow-0 flex-shrink-0 relative px-10 py-4 border-t-0 border-r-0 border-b border-l-0 border-gray-200">
@@ -48,6 +57,13 @@ const Header = () => {
             Recursos
           </Link>
         </div>
+        {isAdmin && (
+          <div className="flex flex-col justify-start items-start flex-grow-0 flex-shrink-0 relative">
+            <Link to="/admin" className={`flex-grow-0 flex-shrink-0 text-sm font-medium text-left ${isActiveRoute('/admin') ? 'text-[#1173d4]' : 'text-slate-600'}`}>
+              Admin
+            </Link>
+          </div>
+        )}
       </div>
       <div className="flex justify-start items-center flex-grow-0 flex-shrink-0 gap-4">
         <div className="flex justify-center items-center flex-grow-0 flex-shrink-0 w-10 h-10 rounded-full">
@@ -68,10 +84,27 @@ const Header = () => {
             </svg>
           </div>
         </div>
-        <img
-          src="userIcon.png"
-          className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
-        />
+        <div className="flex justify-start items-center flex-grow-0 flex-shrink-0 gap-4">
+        {/* ... (Notification icon remains the same) ... */}
+        <div className="relative">
+          <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="cursor-pointer">
+            <img
+              src="/userIcon.png" // Use absolute path from public folder
+              className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
+            />
+          </button>
+          {isDropdownOpen && (
+            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+              <button
+                onClick={handleLogout}
+                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              >
+                Salir de la cuenta
+              </button>
+            </div>
+          )}
+        </div>
+        </div>
       </div>
     </div>
   );
