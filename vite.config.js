@@ -17,7 +17,7 @@ export default defineConfig(({ command }) => ({
     }),
     tailwindcss(),
   ],
-
+  
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -26,6 +26,12 @@ export default defineConfig(({ command }) => ({
       '@pages': path.resolve(__dirname, './src/pages'),
       '@api': path.resolve(__dirname, './src/api'),
     },
+  },
+
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './tests/setup.js',
   },
 
 }))

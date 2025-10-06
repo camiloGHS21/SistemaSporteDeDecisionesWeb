@@ -93,9 +93,26 @@ describe('Login Component', () => {
   });
 
   test('redirects to /comparar on successful login', async () => {
-    fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ token: 'fake-token' }),
+    fetch.mockImplementation((url) => {
+      if (url.includes('/api/auth/login')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ token: 'fake-token' }),
+        });
+      }
+      if (url.includes('/api/auth/validate')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({}),
+        });
+      }
+      if (url.includes('/api/admin/auth/validate')) {
+        return Promise.resolve({
+          ok: false, // Not an admin
+          json: () => Promise.resolve({}),
+        });
+      }
+      return Promise.reject(new Error(`Unhandled fetch mock for ${url}`));
     });
 
     renderWithProviders(<Login />, { route: '/login' });
