@@ -69,9 +69,7 @@ const RegisterForm = () => {
         
       <input  className="flex justify-center items-start self-stretch flex-grow-0 flex-shrink-0 overflow-hidden px-[17px] pt-[11px] pb-3 rounded-md border border-[#ced4da]" placeholder='Contraseña' type='password' value={password} onChange={(e) => setPassword(e.target.value)} required />
       {passwordError && <p className="text-red-500 text-xs">{passwordError}</p>}
-      
-      {apiError && <p className="text-red-500 text-sm text-center w-full">{apiError}</p>}
-
+      {apiError && <p className="text-red-500 text-xs"></p>}
       <button type="submit" className="flex justify-center items-center self-stretch flex-grow-0 flex-shrink-0 relative px-4 py-2 rounded-md bg-[#4263eb] text-white font-semibold text-base w-full">
         Regístrate
       </button>

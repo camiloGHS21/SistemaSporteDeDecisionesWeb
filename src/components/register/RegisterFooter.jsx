@@ -1,5 +1,5 @@
 import React from 'react';
-
+import { Link } from 'react-router-dom';
 const RegisterFooter = () => {
   return (
     <div className="flex flex-col justify-start items-center self-stretch flex-grow-0 flex-shrink-0 gap-2">
@@ -14,9 +14,9 @@ const RegisterFooter = () => {
         </div>
       </div>
       <div className="flex justify-center items-start flex-grow-0 flex-shrink-0 relative">
-        <p className="flex-grow-0 flex-shrink-0 text-xs text-center text-[#4263eb]">
+        <Link to="/" className="flex-grow-0 flex-shrink-0 text-xs text-center text-[#4263eb]">
           política de privacidad
-        </p>
+        </Link>
       </div>
     </div>
   );

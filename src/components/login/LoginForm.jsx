@@ -55,7 +55,7 @@ const LoginForm = () => {
           required
         />
       </div>
-      {error && <p className="text-sm font-medium text-left text-red-600">{error}</p>}
+      {error && <p className="text-sm font-medium text-left text-red-600">Contraseña incorrecta o usuario no registrado.</p>}
       <div className="flex justify-end items-center self-stretch">
         <p className="text-sm font-medium text-left text-blue-600">¿Olvidaste tu contraseña?</p>
       </div>

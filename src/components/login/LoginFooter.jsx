@@ -1,14 +1,14 @@
 import React from 'react';
-
+import { Link } from 'react-router-dom';
 const LoginFooter = () => {
   return (
     <div className="flex flex-col justify-start items-center w-full gap-2">
       <div className="flex justify-center items-center">
         <p className="text-sm text-gray-600">
           ¿No tienes una cuenta?{' '}
-          <a href="/register" className="font-medium text-blue-600 hover:underline">
+          <Link to="/register"className="font-medium text-blue-600 hover:underline">
             Regístrate
-          </a>
+          </Link>
         </p>
       </div>
       <div className="flex justify-center items-center">
