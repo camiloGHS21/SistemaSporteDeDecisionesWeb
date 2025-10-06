@@ -1,11 +1,19 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const Header = () => {
   const location = useLocation();
+  const { isAdmin, logout } = useAuth();
+  const navigate = useNavigate();
 
   const isActiveRoute = (path) => {
     return location.pathname === path;
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
   };
 
   return (
@@ -48,6 +56,13 @@ const Header = () => {
             Recursos
           </Link>
         </div>
+        {isAdmin && (
+          <div className="flex flex-col justify-start items-start flex-grow-0 flex-shrink-0 relative">
+            <Link to="/admin" className={`flex-grow-0 flex-shrink-0 text-sm font-medium text-left ${isActiveRoute('/admin') ? 'text-[#1173d4]' : 'text-slate-600'}`}>
+              Admin
+            </Link>
+          </div>
+        )}
       </div>
       <div className="flex justify-start items-center flex-grow-0 flex-shrink-0 gap-4">
         <div className="flex justify-center items-center flex-grow-0 flex-shrink-0 w-10 h-10 rounded-full">
@@ -68,10 +83,12 @@ const Header = () => {
             </svg>
           </div>
         </div>
-        <img
-          src="userIcon.png"
-          className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
-        />
+        <button onClick={handleLogout} className="cursor-pointer">
+          <img
+            src="userIcon.png"
+            className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
+          />
+        </button>
       </div>
     </div>
   );

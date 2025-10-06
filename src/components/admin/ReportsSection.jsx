@@ -105,7 +105,6 @@ const ReportsSection = () => {
                     <h2 className="text-3xl font-bold">Informes</h2>
                     <p className="text-subtext-light dark:text-subtext-dark">Gestiona y visualiza los informes del sistema</p>
                 </div>
-            
             </div>
             <div className="bg-surface-light dark:bg-surface-dark p-6 rounded-lg mb-8">
                 <div className="relative">

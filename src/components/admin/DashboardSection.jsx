@@ -84,12 +84,6 @@ const DashboardSection = () => {
                     <h2 className="text-3xl font-bold">Dashboard</h2>
                     <p className="text-subtext-light dark:text-subtext-dark">Welcome back, Admin!</p>
                 </div>
-                <div className="flex items-center space-x-4">
-                    <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
-                        <span className="material-icons text-subtext-light dark:text-subtext-dark">notifications</span>
-                    </button>
-                    <img alt="Admin avatar" className="w-10 h-10 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDeL62W8MS9Wh8NcMF3iemzNg2R_1xztbvmwP0jQ2vnLTl891q5YM9jwQYOGSDVF0IBz_u0GDTEw1QeygqRsZP4qns2MrGvZGpOmbfqpbBaXjygsrufjhzdfGzO2Wxclic7ShFb7JxC553G48qF5RMgpRA9CCes_MYL0eY1xXx0-iE36dSikEnC9fq4GOrEKxyeEupU-FCg4z8WVvvZCZJ4_8t6Rsd6FYYVtT37moEmgv_ulnpYOqznpbQpvpwVk4RGhTZd1KFk-GA" />
-                </div>
             </div>
             {loading && <p>Cargando...</p>}
             {error && <p className="text-red-500">{error}</p>}
