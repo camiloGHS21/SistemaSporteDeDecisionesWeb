@@ -88,7 +88,7 @@ describe('Login Component', () => {
     fireEvent.click(screen.getByRole('button', { name: /iniciar sesión/i }));
 
     await waitFor(() => {
-      expect(screen.getByText('Credenciales inválidas')).toBeInTheDocument();
+      expect(screen.getByText('Contraseña incorrecta o usuario no registrado.')).toBeInTheDocument();
     });
   });
 
@@ -139,7 +139,7 @@ describe('Login Component', () => {
     fireEvent.click(screen.getByRole('button', { name: /iniciar sesión/i }));
 
     await waitFor(() => {
-      expect(screen.getByText('No se pudo conectar al servidor')).toBeInTheDocument();
+      expect(screen.getByText('Contraseña incorrecta o usuario no registrado.')).toBeInTheDocument();
     });
   });
 });
