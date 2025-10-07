@@ -118,7 +118,7 @@ const UsersTable = ({ isCreateModalOpen, setIsCreateModalOpen, searchQuery }) =>
               <tr key={user.id} className="bg-card-light border-b border-border-light">
                 <td className="px-6 py-4">
                   <div className="flex items-center">
-                    <img alt={user.nombre_usuario} className="h-10 w-10 rounded-full object-cover" src={`https://i.pravatar.cc/150?u=${user.id}`} />
+                    <img alt={user.nombre_usuario} className="h-10 w-10 rounded-full object-cover" src={`/userIcon.png`} />
                     <div className="ml-4">
                       <div className="text-sm font-medium text-text-light">{user.nombre_usuario}</div>
                       <div className="text-sm text-subtext-light">{user.email}</div>
