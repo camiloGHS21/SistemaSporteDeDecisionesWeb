@@ -13,18 +13,7 @@ const StatCard = ({ icon, label, value, color }) => (
     </div>
 );
 
-const ActivityItem = ({ avatar, name, action, subject, time }) => (
-    <li className="flex items-center justify-between">
-        <div className="flex items-center">
-            <img alt="User avatar" className="w-8 h-8 rounded-full mr-3" src={avatar} />
-            <div>
-                <p className="font-medium">{name} <span className="text-subtext-light dark:text-subtext-dark font-normal">{action}</span></p>
-                <p className="text-sm text-subtext-light dark:text-subtext-dark">{subject}</p>
-            </div>
-        </div>
-        <span className="text-sm text-subtext-light dark:text-subtext-dark">{time}</span>
-    </li>
-);
+
 
 const DashboardSection = () => {
     const [stats, setStats] = useState(null);
@@ -46,29 +35,8 @@ const DashboardSection = () => {
         fetchStats();
     }, []);
 
-    const activities = [
-        {
-            avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDD1fCdumBzF49JMyI4YaJ08HxwVbeX_JHgD7FOGIpz14je-mrKeFhluDXfs6ukPhoiQdcrOoMI6xI9L5JCiWim2kNUxciSoOEd0xGypCS2EU6kHcpncz1njfinMYj1toYZZkQ4LvKhgLMIrE3DzG9Zg3cWM7Nha-rY8bCyRGjx06pvE_Sb5b1GLRydfylK0yWTtYKjsADfPk1DWhLG6o54RpbfAXiA5DOdjcVUHdoaEzcB3WfcagY8zYrv4SqAt7wY6zaEj1FnAXY',
-            name: 'Carlos Mendoza',
-            action: 'generated a new report.',
-            subject: 'Digital Policies Report',
-            time: '2 hours ago',
-        },
-        {
-            avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDvL5bFvxQJMPVabhZTIGwjVHxb7sGbtxgAPIjP3ua6VfXGJvUPEiNSHbbyft7aFYXrqAFUWMbWXYXQ9Xg64tgA9jE8uwpNj5RxtzW_36-kVoSMJbmPJLuwR65Xyu1iqTwgChUdVu39mGbzhi7qEUrOKho9cvwm_m8QakH5SoOywbnjRcJJuUGmk3gpi_LH0_rH7BgSlWnhQ7DdjZldGsj5quDKrCW5wrvozoum3uMPEXTNLqhiBavGnNbRZBGGDQgB59o88pptU8M',
-            name: 'Sofia Ramirez',
-            action: 'updated her profile.',
-            subject: '',
-            time: '5 hours ago',
-        },
-        {
-            avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA0L8wUcmMsYSLEjHI84usiGm6ZTC8TfGR9jScwUHkH0yLY1Fsplju1fDzJ-7hgwmM0I2vQGBMgOIFDmXrhs6Lxm5vRWJcHzgKxGREa8CBSTjudm4Bvs5cCyV6BG8H8qafboXaB--Ki7ZVwqGE2jmA3DvutQBI41WvOOYr06vLEkmHeKb0-3RdAB7XXGFJPujry7hBF4dvOP3S5gU763KV4biZQSSQbdlwT-g2Y7SIVJ0lelUAikcQKzu_mOEXavP43XDm19tPkvrk',
-            name: 'Diego Torres',
-            action: 'commented on an issue.',
-            subject: '#1234: API connection error',
-            time: '1 day ago',
-        },
-    ];
+   
+
 
     const statItems = stats ? [
         { icon: 'people', label: 'Total Users', value: stats.totalUsers, color: 'blue' },
@@ -92,13 +60,7 @@ const DashboardSection = () => {
                     {statItems.map((stat, index) => <StatCard key={index} {...stat} />)}
                 </div>
             )}
-            <div className="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-sm">
-                <h3 className="font-semibold text-lg mb-4">Recent Activity</h3>
-                <ul className="space-y-4">
-                    {activities.map((activity, index) => <ActivityItem key={index} {...activity} />)}
-                </ul>
-            </div>
-        </main>
+        </main> 
     );
 };
 
