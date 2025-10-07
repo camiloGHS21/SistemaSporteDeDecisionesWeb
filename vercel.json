@@ -1,16 +1,5 @@
 {
-  "builds": [
-    {
-      "src": "docs/package.json",
-      "use": "@vercel/docusaurus",
-      "config": { "project": "docs", "root": "docs" }
-    },
-    {
-      "src": "package.json",
-      "use": "@vercel/vite",
-      "config": { "project": "SistemaSporteDeDecisionesWeb", "root": "." }
-    }
-  ],
+
   "routes": [
     {
       "handle": "filesystem"
