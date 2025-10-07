@@ -1,5 +1,40 @@
+---
+sidebar_label: 'UsersTable'
+---
 
+# Componente UsersTable
 
+**Ruta del archivo:** `src/components/admin/UsersTable.jsx`
+
+## Descripción
+
+Este archivo contiene el componente de la tabla de usuarios para la sección de administración. Un componente que muestra una tabla de usuarios con funcionalidades de crear, editar, eliminar y ver.
+
+## Props
+
+- **isCreateModalOpen**: `boolean` - Un booleano que indica si el modal de creación está abierto.
+- **setIsCreateModalOpen**: `function` - La función para abrir o cerrar el modal de creación.
+- **searchQuery**: `string` - La consulta de búsqueda para filtrar usuarios.
+
+## Estado
+
+- **users**: `Array<object>` - La lista de usuarios. Por defecto es `[]`.
+- **loading**: `boolean` - Indica si se están cargando los usuarios. Por defecto es `true`.
+- **error**: `string | null` - El mensaje de error si la carga de usuarios falla. Por defecto es `null`.
+- **selectedUser**: `object | null` - El usuario seleccionado para editar o ver. Por defecto es `null`.
+- **isEditModalOpen**: `boolean` - Controla si el modal de edición está abierto. Por defecto es `false`.
+- **isViewModalOpen**: `boolean` - Controla si el modal de vista está abierto. Por defecto es `false`.
+- **isConfirmModalOpen**: `boolean` - Controla si el modal de confirmación de eliminación está abierto. Por defecto es `false`.
+- **userToDelete**: `string | null` - El ID del usuario a eliminar. Por defecto es `null`.
+- **newUser**: `object` - El objeto para el nuevo usuario a crear.
+
+## Retorna
+
+- `{JSX.Element}`: La tabla de usuarios renderizada.
+
+## Código Fuente
+
+```jsx
 import React, { useState, useEffect } from 'react';
 import { getUsers, deleteUser, updateUser, createUser } from '@api/admin';
 import ConfirmationModal from '../common/ConfirmationModal';
@@ -118,7 +153,7 @@ const UsersTable = ({ isCreateModalOpen, setIsCreateModalOpen, searchQuery }) =>
               <tr key={user.id} className="bg-card-light border-b border-border-light">
                 <td className="px-6 py-4">
                   <div className="flex items-center">
-                    <img alt={user.nombre_usuario} className="h-10 w-10 rounded-full object-cover" src={`/userIcon.png`} />
+                    <img alt={user.nombre_usuario} className="h-10 w-10 rounded-full object-cover" src={`https://i.pravatar.cc/150?u=${user.id}`} />
                     <div className="ml-4">
                       <div className="text-sm font-medium text-text-light">{user.nombre_usuario}</div>
                       <div className="text-sm text-subtext-light">{user.email}</div>
@@ -235,3 +270,4 @@ const UsersTable = ({ isCreateModalOpen, setIsCreateModalOpen, searchQuery }) =>
   );
 };
 export default UsersTable;
+```
