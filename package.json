@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "rimraf dist && cd docs && bun run build && cd .. && vite build",
+    "build": "rimraf dist && cd docs && bun install && bun run build && cd .. && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest"
