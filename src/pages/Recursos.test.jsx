@@ -5,10 +5,6 @@ import { MemoryRouter } from 'react-router-dom';
 import Recursos from './Recursos';
 
 // Mock child components to isolate the test to the Recursos page
-vi.mock('../components/common/Header', () => ({
-  default: () => <header>Header Mock</header>
-}));
-
 vi.mock('../components/recursos/DataSourcesSection', () => ({
   default: () => <div>DataSourcesSection Mock</div>
 }));
@@ -32,7 +28,6 @@ describe('Recursos Page', () => {
     expect(screen.getByText(/Esta sección proporciona información sobre las fuentes de datos/)).toBeInTheDocument();
 
     // Verify the mocked child components are rendered
-    expect(screen.getByText('Header Mock')).toBeInTheDocument();
     expect(screen.getByText('DataSourcesSection Mock')).toBeInTheDocument();
     expect(screen.getByText('FileUploadSection Mock')).toBeInTheDocument();
   });

@@ -10,7 +10,8 @@
     "build:docs": "bun --cwd ./docs docusaurus build --out-dir ../dist/docs",
     "build": "bun run clean && bun run build:app && bun run build:docs",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.13",
