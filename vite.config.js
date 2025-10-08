@@ -17,6 +17,9 @@ export default defineConfig(({ command }) => ({
     }),
     tailwindcss(),
   ],
+  build: {
+    emptyOutDir: false,
+  },
   
   resolve: {
     alias: {
