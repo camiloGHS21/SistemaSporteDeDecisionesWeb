@@ -10,7 +10,7 @@ const Comparar = () => {
   const [messages, setMessages] = useState([
     {
       sender: 'bot',
-      text: '¡Hola! Soy tu asistente de IA. Pregúntame\nsobre los datos en el gráfico.',
+      text: '¡Hola! Soy Analyst, tu asistente de análisis. Por favor, selecciona un país y los indicadores que te gustaría analizar. Luego, hazme cualquier pregunta que tengas sobre los datos.',
     },
   ]);
   const navigate = useNavigate();
