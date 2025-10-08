@@ -13,6 +13,7 @@ import { MemoryRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "../context/AuthContext";
 import Register from "./Register";
 import Login from "./Login"; // To test navigation
+import { AccessibilityProvider } from "../context/AccessibilityContext";
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -40,12 +41,14 @@ global.fetch = vi.fn();
 const renderWithProviders = (ui, { route = "/" } = {}) => {
   return render(
     <AuthProvider>
-      <MemoryRouter initialEntries={[route]}>
-        <Routes>
-          <Route path="/register" element={ui} />
-          <Route path="/" element={<Login />} /> {/* Redirect target */}
-        </Routes>
-      </MemoryRouter>
+      <AccessibilityProvider>
+        <MemoryRouter initialEntries={[route]}>
+          <Routes>
+            <Route path="/register" element={ui} />
+            <Route path="/" element={<Login />} /> {/* Redirect target */}
+          </Routes>
+        </MemoryRouter>
+      </AccessibilityProvider>
     </AuthProvider>
   );
 };
