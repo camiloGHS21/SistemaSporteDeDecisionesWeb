@@ -31,15 +31,19 @@ Object.defineProperty(global, 'localStorage', {
 // Mock the fetch function
 global.fetch = vi.fn();
 
+import { AccessibilityProvider } from '../context/AccessibilityContext';
+
 const renderWithProviders = (ui, { route = '/' } = {}) => {
   return render(
     <AuthProvider>
-      <MemoryRouter initialEntries={[route]}>
-        <Routes>
-          <Route path="/login" element={ui} />
-          <Route path="/comparar" element={<Comparar />} />
-        </Routes>
-      </MemoryRouter>
+      <AccessibilityProvider>
+        <MemoryRouter initialEntries={[route]}>
+          <Routes>
+            <Route path="/login" element={ui} />
+            <Route path="/comparar" element={<Comparar />} />
+          </Routes>
+        </MemoryRouter>
+      </AccessibilityProvider>
     </AuthProvider>
   );
 };
