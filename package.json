@@ -4,14 +4,14 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-     "dev": "vite",
-     "clean": "rimraf dist",
-     "build:app": "vite build",
-     "build:docs": "bun --cwd ./docs docusaurus build --out-dir ../dist/docs",
-     "build": "bun run clean && bun run build:app && bun run build:docs",
-     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-     "preview": "vite preview"
-   },
+    "dev": "vite",
+    "clean": "rimraf dist",
+    "build:app": "vite build",
+    "build:docs": "bun --cwd ./docs docusaurus build --out-dir ../dist/docs",
+    "build": "bun run clean && bun run build:app && bun run build:docs",
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.13",
     "axios": "^1.12.2",
@@ -20,6 +20,7 @@
     "multiselect-react-dropdown": "^2.0.25",
     "papaparse": "^5.5.3",
     "react": "^19.1.1",
+    "react-accessible-ui": "^0.0.1",
     "react-dom": "^19.1.1",
     "react-is": "^19.2.0",
     "react-router-dom": "^7.9.2",
