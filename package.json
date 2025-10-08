@@ -18,6 +18,7 @@
     "multiselect-react-dropdown": "^2.0.25",
     "papaparse": "^5.5.3",
     "react": "^19.1.1",
+    "react-accessible-ui": "^0.0.1",
     "react-dom": "^19.1.1",
     "react-is": "^19.2.0",
     "react-router-dom": "^7.9.2",
