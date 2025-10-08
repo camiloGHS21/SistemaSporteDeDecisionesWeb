@@ -53,74 +53,86 @@ const FileUploadSection = () => {
     }
   };
 
-  const handleFileUpload = () => {
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handleFileUpload = async () => {
     if (!selectedFile) {
       fileInputRef.current?.click();
       return;
     }
 
     setIsLoading(true);
+    setIsProcessing(false);
     setUploadProgress(0);
     setUploadStatus('');
 
-    const formData = new FormData();
-    formData.append('file', selectedFile);
+    const chunkSize = 1024 * 1024; // 1MB
+    const totalChunks = Math.ceil(selectedFile.size / chunkSize);
+    let currentChunk = 0;
+    const fileName = `${Date.now()}-${selectedFile.name}`;
     const token = localStorage.getItem('token');
 
-    const xhr = new XMLHttpRequest();
+    while (currentChunk < totalChunks) {
+      const start = currentChunk * chunkSize;
+      const end = Math.min(start + chunkSize, selectedFile.size);
+      const chunk = selectedFile.slice(start, end);
 
-    xhr.upload.onprogress = (event) => {
-      if (event.lengthComputable) {
-        const percentComplete = Math.round((event.loaded / event.total) * 100);
-        setUploadProgress(percentComplete);
-      }
-    };
+      const formData = new FormData();
+      formData.append('file', chunk);
+      formData.append('fileName', fileName);
+      formData.append('chunkIndex', currentChunk);
+      formData.append('totalChunks', totalChunks);
 
-    xhr.onload = () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        setUploadProgress(100);
-        setTimeout(() => {
-          setIsLoading(false);
-          setUploadStatus(`Archivo "${selectedFile.name}" cargado. El procesamiento ha comenzado.`);
-          handleClearSelectedFile();
-        }, 1000);
-      } else {
-        setIsLoading(false);
-        let errorMessage = 'No se pudo cargar el archivo.';
-        try {
-            const errorResponse = JSON.parse(xhr.responseText);
-            if (errorResponse.errors && Array.isArray(errorResponse.errors)) {
-                errorMessage = errorResponse.errors.join('\n');
-            } else if (errorResponse.error) {
-                if (errorResponse.error.startsWith("File with name")) {
-                    const fileNameMatch = errorResponse.error.match(/'(.*?)'/);
-                    const fileName = fileNameMatch ? fileNameMatch[1] : '';
-                    errorMessage = `Un archivo con el nombre '${fileName}' ya existe.`;
-                } else if (errorResponse.error === "File with identical content already exists.") {
-                    errorMessage = "Ya existe un archivo con contenido idéntico.";
-                } else {
-                    errorMessage = errorResponse.error;
-                }
-            } else {
-                errorMessage = xhr.responseText;
-            }
-        } catch (e) {
-            errorMessage = xhr.responseText || 'No se pudo cargar el archivo.';
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/upload-chunk`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error('Error al subir el fragmento');
         }
-        setUploadStatus(errorMessage);
+
+        currentChunk++;
+        const progress = Math.round((currentChunk / totalChunks) * 100);
+        setUploadProgress(progress);
+
+      } catch (error) {
+        setIsLoading(false);
+        setUploadStatus('Error al subir el archivo. Por favor, inténtelo de nuevo.');
+        return;
       }
-    };
-
-    xhr.onerror = () => {
-      setIsLoading(false);
-      setUploadStatus('Error de conexión al intentar cargar el archivo.');
-    };
-
-    xhr.open('POST', `${import.meta.env.VITE_API_URL}/api/upload`);
-    if (token) {
-      xhr.setRequestHeader('Authorization', `Bearer ${token}`);
     }
-    xhr.send(formData);
+
+    setIsProcessing(true);
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/upload-complete`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ fileName, totalChunks, originalName: selectedFile.name }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setUploadStatus(`Archivo "${selectedFile.name}" cargado y procesado exitosamente.`);
+        handleClearSelectedFile();
+      } else {
+        setUploadStatus(result.message || 'Error al procesar el archivo.');
+      }
+    } catch (error) {
+      setUploadStatus('Error al finalizar la carga del archivo.');
+    } finally {
+      setIsLoading(false);
+      setIsProcessing(false);
+    }
   };
 
   const handleDownloadTemplate = () => {
@@ -169,9 +181,10 @@ const FileUploadSection = () => {
     <div>
       {isLoading && (
         <LoadingIndicator 
-          message="Subiendo y procesando archivo..." 
+          message="Subiendo archivo..." 
           fileName={selectedFile.name}
           progress={uploadProgress}
+          isProcessing={isProcessing}
         />
       )}
       <h2 className="text-2xl font-semibold text-text-light dark:text-text-dark mb-4 border-b border-border-light dark:border-border-dark pb-2">
