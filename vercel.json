@@ -1,20 +1,8 @@
 {
-
-  "routes": [
+  "builds": [
     {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/docs",
-      "dest": "/docs/"
-    },
-    {
-      "src": "/docs/(.*)",
-      "dest": "/docs/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "src": "package.json",
+      "use": "@vercel/vite"
     }
   ]
 }
