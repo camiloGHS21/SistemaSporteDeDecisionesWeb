@@ -62,14 +62,13 @@ const FileUploadSection = () => {
     }
 
     setIsLoading(true);
-    setIsProcessing(false);
     setUploadProgress(0);
     setUploadStatus('');
 
     const chunkSize = 1024 * 1024; // 1MB
     const totalChunks = Math.ceil(selectedFile.size / chunkSize);
     let currentChunk = 0;
-    const fileName = `${Date.now()}-${selectedFile.name}`;
+    const uploadId = `${Date.now()}-${selectedFile.name}`; // Unique ID for this upload
     const token = localStorage.getItem('token');
 
     while (currentChunk < totalChunks) {
@@ -79,8 +78,9 @@ const FileUploadSection = () => {
 
       const formData = new FormData();
       formData.append('file', chunk);
-      formData.append('fileName', fileName);
-      formData.append('chunkIndex', currentChunk);
+      formData.append('uploadId', uploadId);
+      formData.append('fileName', selectedFile.name); // Original file name for the backend
+      formData.append('chunkNumber', currentChunk);
       formData.append('totalChunks', totalChunks);
 
       try {
@@ -92,46 +92,48 @@ const FileUploadSection = () => {
           body: formData,
         });
 
+        const resultText = await response.text();
+
         if (!response.ok) {
-          throw new Error('Error al subir el fragmento');
+            let errorMessage = resultText;
+            try {
+                // The backend sends a ValidationErrorResponse on validation failure
+                const errorJson = JSON.parse(resultText);
+                if (errorJson.errors && Array.isArray(errorJson.errors)) {
+                    errorMessage = errorJson.errors.join('\n');
+                }
+            } catch (e) {
+                // If it's not JSON, use the plain text response
+            }
+            throw new Error(errorMessage);
+        }
+
+        const progress = Math.round(((currentChunk + 1) / totalChunks) * 100);
+        setUploadProgress(progress);
+
+        // The backend handles the final processing on the last chunk
+        if (currentChunk === totalChunks - 1) {
+            setIsProcessing(true); // Start the processing animation
+            // We need to wait a bit to show the "processing" state.
+            setTimeout(() => {
+                let finalMessage = resultText;
+                if (resultText.trim() === "File reassembled and processing started.") {
+                    finalMessage = "Archivo reensamblado y procesando.";
+                }
+                setUploadStatus(finalMessage); // Final success message from server
+                handleClearSelectedFile();
+                setIsLoading(false);
+                setIsProcessing(false);
+            }, 2000); // Wait 2 seconds to show the processing animation
         }
 
         currentChunk++;
-        const progress = Math.round((currentChunk / totalChunks) * 100);
-        setUploadProgress(progress);
 
       } catch (error) {
         setIsLoading(false);
-        setUploadStatus('Error al subir el archivo. Por favor, inténtelo de nuevo.');
-        return;
+        setUploadStatus(error.message || 'Error al subir el archivo. Por favor, inténtelo de nuevo.');
+        return; // Stop the upload on error
       }
-    }
-
-    setIsProcessing(true);
-
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/upload-complete`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ fileName, totalChunks, originalName: selectedFile.name }),
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        setUploadStatus(`Archivo "${selectedFile.name}" cargado y procesado exitosamente.`);
-        handleClearSelectedFile();
-      } else {
-        setUploadStatus(result.message || 'Error al procesar el archivo.');
-      }
-    } catch (error) {
-      setUploadStatus('Error al finalizar la carga del archivo.');
-    } finally {
-      setIsLoading(false);
-      setIsProcessing(false);
     }
   };
 
@@ -146,12 +148,62 @@ const FileUploadSection = () => {
     ];
     
     // Add sample data rows
-    const sampleData = [
-      ['Colombia', 'Tasa de Desempleo', '5.8', '2023', 'Banco Mundial'],
-      ['Colombia', 'PIB per capita', '45000.50', '2023', 'FMI'],
-      ['Mexico', 'Tasa de Alfabetización', '99.1', '2022', 'UNESCO']
-    ];
-    
+    const sampleData= [
+  ["España", "Innovación tecnológica", 0.477, 2024, "OMPI IGI"],
+  ["España", "Ciberseguridad", 1.0, 2024, "UIT IGC (Nivel)"],
+  ["España", "Gobierno digital", 0.9206, 2024, "ONU IDGE"],
+  ["España", "Adopción de IA", 0.7, 2024, "FMI IPAI (Estimado 2024)"],
+  ["España", "Conectividad de banda ancha", 0.84, 2024, "GSMA ICM"],
+
+  ["Estados Unidos", "Innovación tecnológica", 0.624, 2024, "OMPI IGI"],
+  ["Estados Unidos", "Ciberseguridad", 1.0, 2024, "UIT IGC (Nivel)"],
+  ["Estados Unidos", "Gobierno digital", 0.9195, 2024, "ONU IDGE"],
+  ["Estados Unidos", "Adopción de IA", 0.79, 2024, "FMI IPAI (Estimado 2024)"],
+  ["Estados Unidos", "Conectividad de banda ancha", 0.91, 2024, "GSMA ICM"],
+
+  ["Reino Unido", "Innovación tecnológica", 0.61, 2024, "OMPI IGI"],
+  ["Reino Unido", "Ciberseguridad", 1.0, 2024, "UIT IGC (Nivel)"],
+  ["Reino Unido", "Gobierno digital", 0.9577, 2024, "ONU IDGE"],
+  ["Reino Unido", "Adopción de IA", 0.75, 2024, "FMI IPAI (Estimado 2024)"],
+  ["Reino Unido", "Conectividad de banda ancha", 0.87, 2024, "GSMA ICM"],
+
+  ["Canadá", "Innovación tecnológica", 0.543, 2024, "OMPI IGI"],
+  ["Canadá", "Ciberseguridad", 1.0, 2024, "UIT IGC (Nivel)"],
+  ["Canadá", "Gobierno digital", 0.8452, 2024, "ONU IDGE"],
+  ["Canadá", "Adopción de IA", 0.73, 2024, "FMI IPAI (Estimado 2024)"],
+  ["Canadá", "Conectividad de banda ancha", 0.89, 2024, "GSMA ICM"],
+
+  ["Australia", "Innovación tecnológica", 0.497, 2024, "OMPI IGI"],
+  ["Australia", "Ciberseguridad", 1.0, 2024, "UIT IGC (Nivel)"],
+  ["Australia", "Gobierno digital", 0.9577, 2024, "ONU IDGE"],
+  ["Australia", "Adopción de IA", 0.76, 2024, "FMI IPAI (Estimado 2024)"],
+  ["Australia", "Conectividad de banda ancha", 0.93, 2024, "GSMA ICM"],
+
+  ["Japón", "Innovación tecnológica", 0.546, 2024, "OMPI IGI"],
+  ["Japón", "Ciberseguridad", 1.0, 2024, "UIT IGC (Nivel)"],
+  ["Japón", "Gobierno digital", 0.9351, 2024, "ONU IDGE"],
+  ["Japón", "Adopción de IA", 0.77, 2024, "FMI IPAI (Estimado 2024)"],
+  ["Japón", "Conectividad de banda ancha", 0.86, 2024, "GSMA ICM"],
+
+  ["Alemania", "Innovación tecnológica", 0.581, 2024, "OMPI IGI"],
+  ["Alemania", "Ciberseguridad", 1.0, 2024, "UIT IGC (Nivel)"],
+  ["Alemania", "Gobierno digital", 0.9382, 2024, "ONU IDGE"],
+  ["Alemania", "Adopción de IA", 0.78, 2024, "FMI IPAI (Estimado 2024)"],
+  ["Alemania", "Conectividad de banda ancha", 0.84, 2024, "GSMA ICM"],
+
+  ["Francia", "Innovación tecnológica", 0.554, 2024, "OMPI IGI"],
+  ["Francia", "Ciberseguridad", 1.0, 2024, "UIT IGC (Nivel)"],
+  ["Francia", "Gobierno digital", 0.8744, 2024, "ONU IDGE"],
+  ["Francia", "Adopción de IA", 0.7, 2024, "FMI IPAI (Estimado Eurozona 2024)"],
+  ["Francia", "Conectividad de banda ancha", 0.85, 2024, "GSMA ICM"],
+
+  ["Colombia", "Innovación tecnológica", 0.305, 2024, "OMPI IGI"],
+  ["Colombia", "Ciberseguridad", 0.78, 2024, "UIT IGC (Nivel estimado)"],
+  ["Colombia", "Gobierno digital", 0.7793, 2024, "ONU IDGE"],
+  ["Colombia", "Adopción de IA", 0.55, 2024, "FMI IPAI (Estimado 2024)"],
+  ["Colombia", "Conectividad de banda ancha", 0.71, 2024, "GSMA ICM"]
+];
+
     // Create CSV content
     const csvContent = [
       csvHeaders.join(','),
@@ -286,8 +338,8 @@ const FileUploadSection = () => {
           {/* Upload status */}
           {uploadStatus && !isLoading && (
             <Alert
-              type={uploadStatus.includes('exitosamente') || uploadStatus.includes('cargado') ? 'success' : 'error'}
-              title={uploadStatus.includes('exitosamente') || uploadStatus.includes('cargado') ? 'Éxito:' : ''}
+              type={uploadStatus.includes('exitosamente') || uploadStatus.includes('cargado') || uploadStatus.includes('procesando') ? 'success' : 'error'}
+              title={uploadStatus.includes('exitosamente') || uploadStatus.includes('cargado') || uploadStatus.includes('procesando') ? 'Éxito:' : ''}
               message={uploadStatus}
               onClose={() => setUploadStatus('')}
             />
