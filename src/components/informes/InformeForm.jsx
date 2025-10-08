@@ -11,6 +11,7 @@ const InformeForm = ({
   setSelectedIndicators,
   format,
   setFormat,
+  errors = {},
 }) => {
 
   return (
@@ -22,13 +23,14 @@ const InformeForm = ({
           <select 
             value={principalCountry}
             onChange={(e) => setPrincipalCountry(e.target.value)}
-            className="mt-1 block w-full rounded-md border-slate-300 py-2 pl-3 pr-10 text-sm focus:border-blue-600 focus:outline-none focus:ring-blue-600"
+            className={`mt-1 block w-full rounded-md border py-2 pl-3 pr-10 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 ${errors.principalCountry ? 'border-blue-500' : 'border-slate-300'}`}
           >
             <option value="" disabled>Selecciona un país</option>
             {countries.map(country => (
               <option key={country.value} value={country.value}>{country.label}</option>
             ))}
           </select>
+          {errors.principalCountry && <p className="text-blue-500 text-xs mt-1">{errors.principalCountry}</p>}
         </div>
         <div>
           <label className="block text-sm font-medium text-slate-700" htmlFor="comparison-countries">Países a comparar</label>
@@ -36,12 +38,13 @@ const InformeForm = ({
             multiple
             value={comparisonCountries}
             onChange={(e) => setComparisonCountries(Array.from(e.target.selectedOptions, option => option.value))}
-            className="mt-1 block w-full rounded-md border-slate-300 py-2 pl-3 pr-10 text-sm focus:border-blue-600 focus:outline-none focus:ring-blue-600 h-20"
+            className={`mt-1 block w-full rounded-md border py-2 pl-3 pr-10 text-sm focus:outline-none h-20 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 ${errors.comparisonCountries ? 'border-blue-500' : 'border-slate-300'}`}
           >
             {countries.map(country => (
               <option key={country.value} value={country.value}>{country.label}</option>
             ))}
           </select>
+          {errors.comparisonCountries && <p className="text-blue-500 text-xs mt-1">{errors.comparisonCountries}</p>}
           <p className="mt-1 text-xs text-slate-500">Mantén pulsado Ctrl/Cmd para seleccionar varios.</p>
         </div>
         <div>
@@ -50,12 +53,13 @@ const InformeForm = ({
             multiple
             value={selectedIndicators}
             onChange={(e) => setSelectedIndicators(Array.from(e.target.selectedOptions, option => option.value))}
-            className="mt-1 block w-full rounded-md border-slate-300 py-2 pl-3 pr-10 text-sm focus:border-blue-600 focus:outline-none focus:ring-blue-600 h-20"
+            className={`mt-1 block w-full rounded-md border py-2 pl-3 pr-10 text-sm focus:outline-none h-20 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 ${errors.selectedIndicators ? 'border-blue-500' : 'border-slate-300'}`}
           >
             {indicators.map(indicator => (
               <option key={indicator.value} value={indicator.value}>{indicator.label}</option>
             ))}
           </select>
+          {errors.selectedIndicators && <p className="text-blue-500 text-xs mt-1">{errors.selectedIndicators}</p>}
           <p className="mt-1 text-xs text-slate-500">Mantén pulsado Ctrl/Cmd para seleccionar varios.</p>
         </div>
         <div>

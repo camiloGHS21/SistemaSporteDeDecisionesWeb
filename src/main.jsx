@@ -12,6 +12,7 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import AdminRoute from './components/auth/AdminRoute'; // Import AdminRoute
 import { AuthProvider } from './context/AuthContext';
 import Admin from '@pages/Admin';
+import MainLayout from './components/common/MainLayout';
 
 const router = createBrowserRouter([
   {
@@ -26,25 +27,35 @@ const router = createBrowserRouter([
     element: <ProtectedRoute />,
     children: [
       {
-        path:'/comparar',
-        element: <Comparar/>
-      },
-      {
-        path: '/recursos',
-        element: <Recursos/>
-      },
-      {
-        path: '/informe',
-        element: <Informes/>
-      },
+        element: <MainLayout />,
+        children: [
+          {
+            path:'/comparar',
+            element: <Comparar/>
+          },
+          {
+            path: '/recursos',
+            element: <Recursos/>
+          },
+          {
+            path: '/informe',
+            element: <Informes/>
+          },
+        ]
+      }
     ]
   },
   {
     element: <AdminRoute />,
     children: [
       {
-        path: '/admin',
-        element: <Admin />
+        element: <MainLayout />,
+        children: [
+          {
+            path: '/admin',
+            element: <Admin />
+          }
+        ]
       }
     ]
   },
@@ -54,10 +65,14 @@ const router = createBrowserRouter([
   }
 ])
 
+import { AccessibilityProvider } from './context/AccessibilityContext';
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>
-      <RouterProvider router={router} />
+      <AccessibilityProvider>
+        <RouterProvider router={router} />
+      </AccessibilityProvider>
     </AuthProvider>
   </StrictMode>,
 );

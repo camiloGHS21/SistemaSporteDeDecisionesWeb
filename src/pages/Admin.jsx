@@ -1,7 +1,6 @@
 
 
 import React, { useState } from 'react';
-import Header from '../components/common/Header';
 import AdminSidebar from '@components/admin/AdminSidebar';
 import AdminHeader from '@components/admin/AdminHeader';
 import UserSearchBar from '@components/admin/UserSearchBar';
@@ -34,14 +33,11 @@ const Admin = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-background-light font-display">
-      <Header />
-      <div className="flex flex-1 overflow-hidden">
-        <AdminSidebar currentView={currentView} setCurrentView={setCurrentView} />
-        <main className="flex-1 p-8 overflow-y-auto">
-          {renderContent()}
-        </main>
-      </div>
+    <div className="flex flex-1 overflow-hidden">
+      <AdminSidebar currentView={currentView} setCurrentView={setCurrentView} />
+      <main className="flex-1 p-8 overflow-y-auto">
+        {renderContent()}
+      </main>
     </div>
   );
 };
