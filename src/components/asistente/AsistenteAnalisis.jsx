@@ -57,6 +57,17 @@ const AsistenteAnalisis = ({ data, messages, setMessages }) => {
     setInputValue('');
     setIsLoading(true);
 
+    const greetings = ['hola', 'buenos días', 'buenas tardes', 'buenas noches', 'hey', 'qué tal'];
+    if (greetings.includes(inputValue.toLowerCase().trim())) {
+      const botMessage = {
+        sender: 'bot',
+        text: '¡Hola! Soy Analyst, tu asistente de análisis. ¿En qué puedo ayudarte hoy?',
+      };
+      setMessages((prevMessages) => [...prevMessages, botMessage]);
+      setIsLoading(false);
+      return;
+    }
+
     if (!data || !data.country || data.indicators.length === 0) {
       setTimeout(() => {
         const botMessage = {
@@ -112,17 +123,20 @@ const AsistenteAnalisis = ({ data, messages, setMessages }) => {
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
-    const prompt = `Analiza los siguientes datos de un gráfico de barras y responde la pregunta.
+    const prompt = `Eres Analyst, un asistente de análisis de datos con acceso a información contextual. Tu objetivo es responder a las preguntas del usuario de manera informativa y conversacional.
 
 Contexto:
 - País principal: ${data.country.label}
 - Países de referencia: ${data.references.map(r => r.label).join(', ')}
 - Indicadores seleccionados: ${data.indicators.map(i => i.label).join(', ')}
-- Datos del gráfico: ${JSON.stringify(barChartData, null, 2)}
+- Datos del gráfico (si es relevante para la pregunta): ${JSON.stringify(barChartData, null, 2)}
 
-Pregunta: ${inputValue}
+Pregunta del usuario: "${inputValue}"
 
-Responde de manera concisa y basándote únicamente en los datos proporcionados.`;
+Instrucciones:
+1.  Si la pregunta es general (p. ej., "¿por qué los indicadores de un país son bajos?"), responde basándote en tu conocimiento general y, si es posible, relaciona la respuesta con los datos proporcionados.
+2.  Si la pregunta es específica sobre los datos del gráfico, analiza los datos y proporciona una respuesta detallada.
+3.  Sé siempre amable y servicial.`;
 
     const requestBody = {
         contents: [{
